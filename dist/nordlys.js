@@ -2162,6 +2162,14 @@
       var wrap = document.createElement("div"); wrap.innerHTML = HTML;
       this._root.appendChild(style);
       while (wrap.firstChild) this._root.appendChild(wrap.firstChild);
+      /* Nordlys: hide: [...] skjuler sektioner - scener (Hurtige scener), tips (hjælpeknapperne under topbjælken) */
+      var hd = this._config.hide;
+      if (Array.isArray(hd)) {
+        var hw = hd.map(function (x) { return String(x).toLowerCase(); }), hr = this._root;
+        var hs = function (k1, k2) { return hw.indexOf(k1) > -1 || hw.indexOf(k2) > -1; };
+        if (hs("scener", "scenes")) { var sc = hr.querySelector("#scenes"); if (sc && sc.parentNode) sc.parentNode.hidden = true; }
+        if (hs("tips", "hints")) { var hn = hr.querySelector(".hints"); if (hn) hn.hidden = true; }
+      }
       /* Nordlys: dock: [...] vælger hvilke knapper i bundmenuen der vises */
       var dk = this._config.dock;
       if (Array.isArray(dk)) {

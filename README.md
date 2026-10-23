@@ -69,6 +69,14 @@ I test faldt CPU-tiden på hovedtråden fra cirka 67 ms til cirka 4 ms pr. sekun
 dock: [hus, energi]
 ```
 
+### Skjul sektioner
+
+`hide` skjuler dele af forsiden: `scener` er "Hurtige scener", og `tips` er hjælpeknapperne under topbjælken.
+
+```yaml
+hide: [scener, tips]
+```
+
 ### Lys-pladser
 
 Kortet har 11 faste lys-pladser. Nøglerne er de originale italienske:
