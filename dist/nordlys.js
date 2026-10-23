@@ -1014,6 +1014,9 @@
         LIGHTS[x.k] = [x.n || x.k, x.img || LIGHTS[room.l[0]][1], x.ic || "mdi-lightbulb", "luce_" + x.k];
         ENT.lights[x.k] = x.id; room.l.push(x.k); state.lights[x.k] = false;
       });
+      /* Nordlys: en lys-plads sat til null/false i entities.lights fjernes; rum uden lys skjules */
+      Object.keys(ENT.lights).forEach(function (k) { if (e.lights && Object.prototype.hasOwnProperty.call(e.lights, k) && !e.lights[k]) { delete ENT.lights[k]; delete state.lights[k]; ROOMS.forEach(function (r) { r.l = r.l.filter(function (x) { return x !== k; }); }); } });
+      for (var ri = ROOMS.length - 1; ri >= 0; ri--) if (!ROOMS[ri].l.length) ROOMS.splice(ri, 1);
     })();
     var HASS = null;
     function sv(id) { return HASS && id && HASS.states[id] ? HASS.states[id] : null; }

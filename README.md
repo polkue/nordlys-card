@@ -48,6 +48,8 @@ labels:
 
 Lys under `extraLights` placeres i et rum ud fra rummets navn, og det er navnet efter `labels.rooms`.
 
+**Fjern lys-pladser:** Sæt en plads til `null` under `entities.lights`, for eksempel `corridoio: null`. Så forsvinder den, og rum uden lys skjules helt.
+
 ### Lys-pladser
 
 Kortet har 11 faste lys-pladser. Nøglerne er de originale italienske:
