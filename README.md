@@ -77,6 +77,10 @@ dock: [hus, energi]
 hide: [scener, tips]
 ```
 
+### Knapstil
+
+`buttons: kompakt` låser lysknapperne til den kompakte stil med ikoner, og `buttons: billeder` låser dem til billeder. Uden indstillingen gælder det valg, der er gemt i den enkelte browser under "Stil".
+
 ### Lys-pladser
 
 Kortet har 11 faste lys-pladser. Nøglerne er de originale italienske:

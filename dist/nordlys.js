@@ -1348,7 +1348,7 @@
     $("#code-in").addEventListener("keydown", function (e) { if (e.key === "Enter") $("#code-ok").click(); });
 
     /* ------------------------------------------------------------------ mondo + ora del giorno */
-    var S = { world: store("world") || "casetta", fx: store("fx") || "none", fxPage: store("fxpage") === "1", cycle: false, btn: store("btn") || "img" };
+    var S = { world: store("world") || "casetta", fx: store("fx") || "none", fxPage: store("fxpage") === "1", cycle: false, btn: ({ kompakt: "compact", kompakte: "compact", compact: "compact", billeder: "img", img: "img" })[String(CFG.buttons || "").toLowerCase()] || store("btn") || "img" }; /* Nordlys: buttons: kompakt|billeder låser knapstilen på alle enheder */
     if (!AMB.W[S.world]) S.world = "casetta";
     if (S.fx !== "none" && !FX.E[S.fx]) S.fx = "none";
     var drawerOpen = false;
@@ -2100,7 +2100,7 @@
     function destroy() { stop(); unbinds.forEach(function (u) { u(); }); unbinds = []; }
 
     /* ------------------------------------------------------------------ avvio */
-    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.1 · forbundet til Home Assistant"; }
+    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.2 · forbundet til Home Assistant"; }
     if (EMB) HOST.setAttribute("data-embedded", "1");
     hydrate(ROOT);
     buildScenes(); buildRooms(); buildSecurity(); buildDrawer(); buildClima(); buildEnergy(); refreshAll();
