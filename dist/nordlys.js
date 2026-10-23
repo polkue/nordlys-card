@@ -2162,6 +2162,16 @@
       var wrap = document.createElement("div"); wrap.innerHTML = HTML;
       this._root.appendChild(style);
       while (wrap.firstChild) this._root.appendChild(wrap.firstChild);
+      /* Nordlys: dock: [...] vælger hvilke knapper i bundmenuen der vises */
+      var dk = this._config.dock;
+      if (Array.isArray(dk)) {
+        var want = dk.map(function (x) { return String(x).toLowerCase(); }), root = this._root;
+        var DOCK = [["home", "hus", '[data-view="home"]'], ["sic", "sikring", '[data-view="sic"]'], ["en", "energi", '[data-view="en"]'], ["scenes", "scener", "#dock-scenes"], ["off", "sluk", "#dock-off"], ["style", "stil", "#dock-style"]];
+        var shown = {};
+        DOCK.forEach(function (d) { var el = root.querySelector(".dock " + d[2]); shown[d[0]] = want.indexOf(d[0]) > -1 || want.indexOf(d[1]) > -1; if (el && !shown[d[0]]) el.hidden = true; });
+        var sep = root.querySelector(".dock .sep");
+        if (sep && !((shown.home || shown.sic || shown.en) && (shown.scenes || shown.off || shown.style))) sep.hidden = true;
+      }
       var self = this, cfg = this._config;
       this._app = new window.AuroraApp({
         root: this._root, host: this, layer: this._root.querySelector("#shell"), scroll: this._root.querySelector("#scroll"),

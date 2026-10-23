@@ -61,6 +61,14 @@ Sæt `animations: false` for at beholde designet uden bevægelse. Det er godt ti
 
 I test faldt CPU-tiden på hovedtråden fra cirka 67 ms til cirka 4 ms pr. sekund.
 
+### Bundmenu
+
+`dock` vælger, hvilke knapper der vises i bundmenuen. Mulige værdier er `hus`, `sikring`, `energi`, `scener`, `sluk` og `stil`, og de engelske nøgler `home`, `sic`, `en`, `scenes`, `off` og `style` virker også. Uden `dock` vises alle.
+
+```yaml
+dock: [hus, energi]
+```
+
 ### Lys-pladser
 
 Kortet har 11 faste lys-pladser. Nøglerne er de originale italienske:
