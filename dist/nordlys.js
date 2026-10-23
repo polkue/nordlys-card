@@ -1109,7 +1109,7 @@
         var orbs = "";
         r.l.forEach(function (k) {
           var L = LIGHTS[k];
-          orbs += '<button class="orb" type="button" data-light="' + k + '" data-img="' + L[1] + '"' + (L[3] ? ' data-ov="' + L[3] + '"' : "") + ' data-label="Luce ' + L[0].toLowerCase() + '" data-on="0" aria-pressed="false">' +
+          orbs += '<button class="orb" type="button" data-light="' + k + '" data-img="' + L[1] + '"' + (L[3] ? ' data-ov="' + L[3] + '"' : "") + ' data-label="Lys ' + L[0].toLowerCase() + '" data-on="0" aria-pressed="false">' +
             '<img class="o-img" alt="" draggable="false"><span class="o-shade"></span><span class="sw"></span><span class="o-ico"><i class="mdi ' + L[2] + '"></i></span>' +
             '<span class="o-txt"><span class="o-name">' + L[0] + "</span><span class=\"o-state\">Slukket</span></span>" + PEN + "</button>";
         });
@@ -2100,7 +2100,7 @@
     function destroy() { stop(); unbinds.forEach(function (u) { u(); }); unbinds = []; }
 
     /* ------------------------------------------------------------------ avvio */
-    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys · forbundet til Home Assistant"; }
+    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.1 · forbundet til Home Assistant"; }
     if (EMB) HOST.setAttribute("data-embedded", "1");
     hydrate(ROOT);
     buildScenes(); buildRooms(); buildSecurity(); buildDrawer(); buildClima(); buildEnergy(); refreshAll();
