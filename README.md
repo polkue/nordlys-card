@@ -50,6 +50,17 @@ Lys under `extraLights` placeres i et rum ud fra rummets navn, og det er navnet 
 
 **Fjern lys-pladser:** Sæt en plads til `null` under `entities.lights`, for eksempel `corridoio: null`. Så forsvinder den, og rum uden lys skjules helt.
 
+### Uden animationer
+
+Sæt `animations: false` for at beholde designet uden bevægelse. Det er godt til vægskærme og ældre tablets.
+
+- **CSS:** Animationer, overgange, glas-sløring (`backdrop-filter`) og støj-laget slås fra. Glasfladerne får en tættere baggrund.
+- **Landskaber:** De animerede landskaber (SVG) fryses som ét billede.
+- **Knapper:** Animerede GIF'er vises som stillbillede.
+- **Vejreffekter:** Regn, sne og lignende kører ikke.
+
+I test faldt CPU-tiden på hovedtråden fra cirka 67 ms til cirka 4 ms pr. sekund.
+
 ### Lys-pladser
 
 Kortet har 11 faste lys-pladser. Nøglerne er de originale italienske:
