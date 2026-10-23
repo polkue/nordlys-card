@@ -56,7 +56,7 @@ Sæt `animations: false` for at beholde designet uden bevægelse. Det er godt ti
 
 - **CSS:** Animationer, overgange, glas-sløring (`backdrop-filter`) og støj-laget slås fra. Glasfladerne får en tættere baggrund.
 - **Landskaber:** De animerede landskaber (SVG) fryses som ét billede.
-- **Knapper:** Animerede GIF'er vises som stillbillede.
+- **Knapper:** Animerede GIF'er erstattes af færdige stillbilleder (`*.still.png`). Det virker også i Android-appen og fylder mindre.
 - **Vejreffekter:** Regn, sne og lignende kører ikke.
 
 I test faldt CPU-tiden på hovedtråden fra cirka 67 ms til cirka 4 ms pr. sekund.

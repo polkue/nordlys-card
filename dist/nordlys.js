@@ -955,7 +955,10 @@
       var im = $("img", node);
       if (!im) return;
       var src = resolve(node.dataset.ov || node.dataset.img, node.dataset.img, node.dataset.on === "1");
-      if (CFG.animations === false && src && (/\.gif(\?|$)/i.test(src) || /^data:image\/gif/i.test(src))) { if (!FROZEN[src]) { freezeGif(src); return; } src = FROZEN[src]; }
+      if (CFG.animations === false && src) {
+        if (/\.gif(\?|$)/i.test(src) && !/^data:/i.test(src)) src = src.replace(/\.gif(\?|$)/i, ".still.png$1"); /* færdigt stillbillede ved siden af GIF'en */
+        else if (/^data:image\/gif/i.test(src)) { if (!FROZEN[src]) { freezeGif(src); return; } src = FROZEN[src]; } /* egne uploadede GIF'er */
+      }
       if (im.getAttribute("src") !== src) im.setAttribute("src", src);
     }
     function refreshAll() { $$("[data-img]").forEach(refreshImg); }
