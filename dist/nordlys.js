@@ -2106,7 +2106,7 @@
     function destroy() { stop(); unbinds.forEach(function (u) { u(); }); unbinds = []; }
 
     /* ------------------------------------------------------------------ avvio */
-    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.4 · forbundet til Home Assistant"; }
+    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.5 · forbundet til Home Assistant"; }
     if (EMB) HOST.setAttribute("data-embedded", "1");
     hydrate(ROOT);
     buildScenes(); buildRooms(); buildSecurity(); buildDrawer(); buildClima(); buildEnergy(); refreshAll();
@@ -2149,7 +2149,9 @@
     ".shell { height: 100%; min-height: 0; overflow: hidden; background: var(--bg); }",
     "i.mdi { display: inline-flex; align-items: center; justify-content: center; line-height: 1; vertical-align: middle; }",
     "i.mdi ha-icon { --mdc-icon-size: 1em; display: flex; width: 1em; height: 1em; }",
-    ".scroll { scrollbar-width: thin; }"
+    ".scroll { scrollbar-width: thin; }",
+    /* Nordlys: ens højde på kompakte lysknapper, også når et navn fylder to linjer */
+    ":host([data-btn=\"compact\"]) .o-name { line-height: 1.25; } :host([data-btn=\"compact\"]) .o-txt { justify-content: flex-end; min-height: calc(2.375rem + 1.1rem); }"
   ].join("\n");
 
   function boot() {

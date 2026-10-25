@@ -134,7 +134,7 @@ EX = {
     'serve un utente amministratore per salvarla in HA': 'kræver en administrator for at gemme i HA',
     'non sono riuscito a scriverla in HA': 'kunne ikke gemme den i HA',
     'Costo giornaliero': 'Pris pr. dag', 'Consumo giornaliero': 'Forbrug pr. dag',
-    'Aurora Glass v3 · collegata a Home Assistant': 'Nordlys 1.4 · forbundet til Home Assistant',
+    'Aurora Glass v3 · collegata a Home Assistant': 'Nordlys 1.5 · forbundet til Home Assistant',
     'Aurora Glass v3': 'Nordlys',
     'Dashboard animata: mondi, effetti meteo e pulsanti fatti di immagini e GIF.': "Animeret dashboard på dansk (baseret på Aurora Glass v3, GPL-3.0).",
     '%c AURORA GLASS v3 %c scheda caricata ': '%c NORDLYS %c kort indlæst ',
@@ -261,4 +261,5 @@ CODE = [
     ('["alarm", "weather", "power", "climate", "cameras"].forEach(function (k) { if (e[k] !== undefined) ENT[k] = e[k]; });', '["alarm", "weather", "temperature", "power", "climate", "cameras"].forEach(function (k) { if (e[k] !== undefined) ENT[k] = e[k]; });'),
     ('var ids = [ENT.alarm, ENT.weather, ENT.power, ENT.climate];', 'var ids = [ENT.alarm, ENT.weather, ENT.temperature, ENT.power, ENT.climate];'),
     ('      if (w && w.attributes.temperature !== undefined) { ct.hidden = false; $("#temp-val").textContent = fmt(w.attributes.temperature) + " " + (w.attributes.temperature_unit || "°C"); setIco($("#temp-ico"), condIcon(w.state)); } else ct.hidden = true;', '      /* Nordlys: entities.temperature = en temperatursensor (fx Netatmo); vejrikonet kommer stadig fra weather */\n      var ts = sv(ENT.temperature);\n      if (ts && !isUnavail(ts) && !isNaN(parseFloat(ts.state))) { ct.hidden = false; $("#temp-val").textContent = fmt(parseFloat(ts.state)) + " " + (ts.attributes.unit_of_measurement || "°C"); setIco($("#temp-ico"), w ? condIcon(w.state) : "mdi-thermometer"); }\n      else if (w && w.attributes.temperature !== undefined) { ct.hidden = false; $("#temp-val").textContent = fmt(w.attributes.temperature) + " " + (w.attributes.temperature_unit || "°C"); setIco($("#temp-ico"), condIcon(w.state)); } else ct.hidden = true;'),
+    ('    ".scroll { scrollbar-width: thin; }"\n  ].join("\\n");', '    ".scroll { scrollbar-width: thin; }",\n    /* Nordlys: ens højde på kompakte lysknapper, også når et navn fylder to linjer */\n    ":host([data-btn=\\"compact\\"]) .o-name { line-height: 1.25; } :host([data-btn=\\"compact\\"]) .o-txt { justify-content: flex-end; min-height: calc(2.375rem + 1.1rem); }"\n  ].join("\\n");'),
 ]
