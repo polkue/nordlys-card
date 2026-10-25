@@ -1030,7 +1030,7 @@
     (function mergeCfg() {
       var e = CFG.entities || {}; var lb = CFG.labels || {}; Object.keys(lb.lights || {}).forEach(function (k) { if (LIGHTS[k] && lb.lights[k]) LIGHTS[k][0] = String(lb.lights[k]); }); (lb.rooms || []).forEach(function (n, i) { if (ROOMS[i] && n) ROOMS[i].n = String(n); }); (lb.scenes || []).forEach(function (x, i) { if (SCENES[i] && x) { if (x.n) SCENES[i].n = String(x.n); if (x.sub) SCENES[i].sub = String(x.sub); if (x.msg) SCENES[i].msg = String(x.msg); } });
       ["lights", "motion", "opens"].forEach(function (g2) { if (e[g2]) Object.keys(e[g2]).forEach(function (k) { ENT[g2][k] = e[g2][k]; }); });
-      ["alarm", "weather", "power", "climate", "cameras"].forEach(function (k) { if (e[k] !== undefined) ENT[k] = e[k]; });
+      ["alarm", "weather", "temperature", "power", "climate", "cameras"].forEach(function (k) { if (e[k] !== undefined) ENT[k] = e[k]; });
       if (e.energy) Object.keys(e.energy).forEach(function (k) { ENT.energy[k] = e.energy[k]; });
       /* luci oltre alle 11 standard: extraLights: [{ k: "strip_led", n: "Strip LED", id: "light.strip_led", room: "Cucina", ic: "mdi-led-strip-variant" }] */
       (e.extraLights || []).forEach(function (x) {
@@ -1524,7 +1524,7 @@
     /* ------------------------------------------------------------------ Home Assistant: sincronizzazione */
     var tracked = {};
     function trackedIds() {
-      var ids = [ENT.alarm, ENT.weather, ENT.power, ENT.climate];
+      var ids = [ENT.alarm, ENT.weather, ENT.temperature, ENT.power, ENT.climate];
       Object.keys(ENT.lights).forEach(function (k) { ids.push(ENT.lights[k]); });
       Object.keys(ENT.motion).forEach(function (k) { (ENT.motion[k] || []).forEach(function (i) { ids.push(i); }); });
       Object.keys(ENT.opens).forEach(function (k) { ids.push(ENT.opens[k]); });
@@ -1564,7 +1564,10 @@
       });
       // chip meteo e consumi
       var w = sv(ENT.weather), ct = $("#chip-temp");
-      if (w && w.attributes.temperature !== undefined) { ct.hidden = false; $("#temp-val").textContent = fmt(w.attributes.temperature) + " " + (w.attributes.temperature_unit || "°C"); setIco($("#temp-ico"), condIcon(w.state)); } else ct.hidden = true;
+      /* Nordlys: entities.temperature = en temperatursensor (fx Netatmo); vejrikonet kommer stadig fra weather */
+      var ts = sv(ENT.temperature);
+      if (ts && !isUnavail(ts) && !isNaN(parseFloat(ts.state))) { ct.hidden = false; $("#temp-val").textContent = fmt(parseFloat(ts.state)) + " " + (ts.attributes.unit_of_measurement || "°C"); setIco($("#temp-ico"), w ? condIcon(w.state) : "mdi-thermometer"); }
+      else if (w && w.attributes.temperature !== undefined) { ct.hidden = false; $("#temp-val").textContent = fmt(w.attributes.temperature) + " " + (w.attributes.temperature_unit || "°C"); setIco($("#temp-ico"), condIcon(w.state)); } else ct.hidden = true;
       var p = sv(ENT.energy.power) || sv(ENT.power), cp = $("#chip-power");
       if (p && !isUnavail(p) && !isNaN(parseFloat(p.state))) { cp.hidden = false; var v = parseFloat(p.state), u = p.attributes.unit_of_measurement || "W"; if (u === "kW") v *= 1000; chipPower(v); } else cp.hidden = true;
       var nm = HASS && HASS.user && HASS.user.name ? HASS.user.name.split(" ")[0] : "";
@@ -2103,7 +2106,7 @@
     function destroy() { stop(); unbinds.forEach(function (u) { u(); }); unbinds = []; }
 
     /* ------------------------------------------------------------------ avvio */
-    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.3 · forbundet til Home Assistant"; }
+    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.4 · forbundet til Home Assistant"; }
     if (EMB) HOST.setAttribute("data-embedded", "1");
     hydrate(ROOT);
     buildScenes(); buildRooms(); buildSecurity(); buildDrawer(); buildClima(); buildEnergy(); refreshAll();

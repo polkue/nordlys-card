@@ -27,6 +27,7 @@ entities:
     cucina: light.koekken
     # ... se Aurora Glass v3's scheda-esempio.yaml for alle pladser
   weather: weather.forecast_hjem
+  temperature: sensor.udendors_temperatur   # valgfri: udetemperatur fra en sensor (fx Netatmo) i stedet for vejrudsigten
   power: sensor.effekt_hus
   energy:
     power: sensor.effekt_hus
