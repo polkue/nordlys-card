@@ -2213,6 +2213,7 @@
     disconnectedCallback() { if (this._app) this._app.stop(); }
     static getStubConfig() { return {}; }
   }
+  console.info("%c NORDLYS %c 1.6.1 ", "background:#7C5CFF;color:#fff;font-weight:700", "background:#FBBF24;color:#141838;font-weight:700");
   if (!customElements.get("nordlys-card")) customElements.define("nordlys-card", AuroraV3Card);
   window.customCards = window.customCards || [];
   window.customCards.push({ type: "nordlys-card", name: "Nordlys", description: "Animeret dashboard på dansk (baseret på Aurora Glass v3, GPL-3.0)." });
