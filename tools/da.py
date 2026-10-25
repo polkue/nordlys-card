@@ -134,7 +134,7 @@ EX = {
     'serve un utente amministratore per salvarla in HA': 'kræver en administrator for at gemme i HA',
     'non sono riuscito a scriverla in HA': 'kunne ikke gemme den i HA',
     'Costo giornaliero': 'Pris pr. dag', 'Consumo giornaliero': 'Forbrug pr. dag',
-    'Aurora Glass v3 · collegata a Home Assistant': 'Nordlys 1.2 · forbundet til Home Assistant',
+    'Aurora Glass v3 · collegata a Home Assistant': 'Nordlys 1.3 · forbundet til Home Assistant',
     'Aurora Glass v3': 'Nordlys',
     'Dashboard animata: mondi, effetti meteo e pulsanti fatti di immagini e GIF.': "Animeret dashboard på dansk (baseret på Aurora Glass v3, GPL-3.0).",
     '%c AURORA GLASS v3 %c scheda caricata ': '%c NORDLYS %c kort indlæst ',
@@ -254,4 +254,8 @@ CODE = [
     ('      if (CFG.animations === false && src && (/\\.gif(\\?|$)/i.test(src) || /^data:image\\/gif/i.test(src))) { if (!FROZEN[src]) { freezeGif(src); return; } src = FROZEN[src]; }', '      if (CFG.animations === false && src) {\n        if (/\\.gif(\\?|$)/i.test(src) && !/^data:/i.test(src)) src = src.replace(/\\.gif(\\?|$)/i, ".still.png$1"); /* færdigt stillbillede ved siden af GIF\'en */\n        else if (/^data:image\\/gif/i.test(src)) { if (!FROZEN[src]) { freezeGif(src); return; } src = FROZEN[src]; } /* egne uploadede GIF\'er */\n      }'),
     (' data-label="Luce \' + L[0].toLowerCase() + \'"', ' data-label="Lys \' + L[0].toLowerCase() + \'"'),
     ('btn: store("btn") || "img" };', 'btn: ({ kompakt: "compact", kompakte: "compact", compact: "compact", billeder: "img", img: "img" })[String(CFG.buttons || "").toLowerCase()] || store("btn") || "img" }; /* Nordlys: buttons: kompakt|billeder låser knapstilen på alle enheder */'),
+    ('    var timers = [], unbinds = [], running = false;', '    var timers = [], unbinds = [], running = false;\n    var LPEND = {}, LSEQ = {}; /* Nordlys: ventende lys-kommandoer, så knappen ikke hopper tilbage */'),
+    ('            var want = !state.lights[k];\n            call("homeassistant", "toggle", { entity_id: ENT.lights[k] });\n            later(function () {\n              var s2 = sv(ENT.lights[k]);\n', '            var want = !state.lights[k], seq = (LSEQ[k] = (LSEQ[k] || 0) + 1);\n            LPEND[k] = { want: want, until: Date.now() + 6000, s0: sv(ENT.lights[k]) };\n            call("homeassistant", want ? "turn_on" : "turn_off", { entity_id: ENT.lights[k] });\n            later(function () {\n              if (LSEQ[k] !== seq) return; /* et nyere tryk har overtaget */\n              var s2 = sv(ENT.lights[k]);\n'),
+    ('              syncLights(); render();\n            }, 3000);', '              syncLights(); render();\n            }, 4000);'),
+    ('    function syncLights() { Object.keys(ENT.lights).forEach(function (k) { var s = sv(ENT.lights[k]); state.lights[k] = !!s && s.state === "on"; }); }', '    function syncLights() { var now = Date.now(); Object.keys(ENT.lights).forEach(function (k) { var s = sv(ENT.lights[k]), on = !!s && s.state === "on", p = LPEND[k]; if (p) { if ((on === p.want && s !== p.s0) || now > p.until || isUnavail(s)) delete LPEND[k]; else { state.lights[k] = p.want; return; } } state.lights[k] = on; }); }'),
 ]

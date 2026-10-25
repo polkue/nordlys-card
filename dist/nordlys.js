@@ -905,6 +905,7 @@
     var $$ = function (s, r) { return Array.prototype.slice.call((r || ROOT).querySelectorAll(s)); };
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || CFG.animations === false;
     var timers = [], unbinds = [], running = false;
+    var LPEND = {}, LSEQ = {}; /* Nordlys: ventende lys-kommandoer, så knappen ikke hopper tilbage */
     function pad(n) { return (n < 10 ? "0" : "") + n; }
     function store(k, v) { try { if (v === undefined) return localStorage.getItem("aurora-v3-" + k); localStorage.setItem("aurora-v3-" + k, v); } catch (e) {} return null; }
     function every(fn, ms) { var id = setInterval(fn, ms); timers.push(id); return id; }
@@ -1126,14 +1127,16 @@
           if (LIVE) {
             var s = sv(ENT.lights[k]);
             if (isUnavail(s)) { toast(LIGHTS[k][0] + ": enheden er ikke tilgængelig", "mdi-alert-circle", "var(--warn)"); return; }
-            var want = !state.lights[k];
-            call("homeassistant", "toggle", { entity_id: ENT.lights[k] });
+            var want = !state.lights[k], seq = (LSEQ[k] = (LSEQ[k] || 0) + 1);
+            LPEND[k] = { want: want, until: Date.now() + 6000, s0: sv(ENT.lights[k]) };
+            call("homeassistant", want ? "turn_on" : "turn_off", { entity_id: ENT.lights[k] });
             later(function () {
+              if (LSEQ[k] !== seq) return; /* et nyere tryk har overtaget */
               var s2 = sv(ENT.lights[k]);
               if (isUnavail(s2)) toast(LIGHTS[k][0] + ": svarer ikke, ved ikke om kommandoen kom frem", "mdi-alert-circle", "var(--warn)");
               else if ((s2.state === "on") !== want) toast(LIGHTS[k][0] + ": kommandoen havde ingen effekt", "mdi-alert-circle", "var(--warn)");
               syncLights(); render();
-            }, 3000);
+            }, 4000);
           }
           state.lights[k] = !state.lights[k]; state.scene = null;
           o.classList.remove("pop"); void o.offsetWidth; o.classList.add("pop");
@@ -1532,7 +1535,7 @@
     }
     function condIcon(c) { return { sunny: "mdi-weather-sunny", "clear-night": "mdi-weather-night", cloudy: "mdi-weather-cloudy", partlycloudy: "mdi-weather-partly-cloudy", rainy: "mdi-weather-rainy", pouring: "mdi-weather-pouring", snowy: "mdi-weather-snowy", "snowy-rainy": "mdi-weather-snowy-rainy", fog: "mdi-weather-fog", lightning: "mdi-weather-lightning", "lightning-rainy": "mdi-weather-lightning-rainy", windy: "mdi-weather-windy", hail: "mdi-weather-hail" }[c] || "mdi-weather-partly-cloudy"; }
     function fmt(n, d) { return Number(n).toLocaleString("da-DK", { maximumFractionDigits: d === undefined ? 1 : d }); }
-    function syncLights() { Object.keys(ENT.lights).forEach(function (k) { var s = sv(ENT.lights[k]); state.lights[k] = !!s && s.state === "on"; }); }
+    function syncLights() { var now = Date.now(); Object.keys(ENT.lights).forEach(function (k) { var s = sv(ENT.lights[k]), on = !!s && s.state === "on", p = LPEND[k]; if (p) { if ((on === p.want && s !== p.s0) || now > p.until || isUnavail(s)) delete LPEND[k]; else { state.lights[k] = p.want; return; } } state.lights[k] = on; }); }
     function syncLive(first) {
       // luci
       syncLights();
@@ -2100,7 +2103,7 @@
     function destroy() { stop(); unbinds.forEach(function (u) { u(); }); unbinds = []; }
 
     /* ------------------------------------------------------------------ avvio */
-    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.2 · forbundet til Home Assistant"; }
+    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.3 · forbundet til Home Assistant"; }
     if (EMB) HOST.setAttribute("data-embedded", "1");
     hydrate(ROOT);
     buildScenes(); buildRooms(); buildSecurity(); buildDrawer(); buildClima(); buildEnergy(); refreshAll();
