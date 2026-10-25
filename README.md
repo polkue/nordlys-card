@@ -32,6 +32,7 @@ entities:
   energy:
     power: sensor.effekt_hus
     solar: sensor.solceller_effekt        # valgfri: solcelleproduktion (W eller kW) — giver en ekstra måler ved siden af forbruget
+    solarEnergy: sensor.solceller_energi  # valgfri: kWh-tæller til "pr. dag" (ellers bruges solarToday)
     solarPeak: 7000                       # valgfri: fuldt udslag på solcellemåleren i W (standard 7000)
     solarToday: sensor.solceller_i_dag    # valgfri: produceret i dag (kWh)
     energyTotal: sensor.energi_total
