@@ -31,6 +31,8 @@ entities:
   power: sensor.effekt_hus
   energy:
     power: sensor.effekt_hus
+    solar: sensor.solceller_effekt        # valgfri: solcelleproduktion (W eller kW) vises øverst under Forbrug
+    solarToday: sensor.solceller_i_dag    # valgfri: produceret i dag (kWh)
     energyTotal: sensor.energi_total
     price: input_number.elpris
 labels:
