@@ -3,6 +3,9 @@
    Ændret oktober 2026: brugerflade oversat til dansk, valuta kr., da-DK-format, nyt navn (nordlys-card),
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
+/* VERSION: ret kun her (se CLAUDE.md) */
+window.NORDLYS_VERSION = "2.0.1";
+
 
 /* ---- disegno.js ---- */
 /* ============================================================================
@@ -2158,7 +2161,7 @@
     function destroy() { stop(); unbinds.forEach(function (u) { u(); }); unbinds = []; }
 
     /* ------------------------------------------------------------------ avvio */
-    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys 1.5 · forbundet til Home Assistant"; }
+    if (LIVE) { HOST.setAttribute("data-live", "1"); var fnote = $("footer.note"); if (fnote) fnote.textContent = "Nordlys " + (window.NORDLYS_VERSION || "") + " · forbundet til Home Assistant"; }
     if (EMB) HOST.setAttribute("data-embedded", "1");
     hydrate(ROOT);
     buildScenes(); buildRooms(); buildSecurity(); buildDrawer(); buildClima(); buildEnergy(); refreshAll();
@@ -2261,7 +2264,7 @@
     disconnectedCallback() { if (this._app) this._app.stop(); }
     static getStubConfig() { return {}; }
   }
-  console.info("%c NORDLYS %c 2.0 ", "background:#7C5CFF;color:#fff;font-weight:700", "background:#FBBF24;color:#141838;font-weight:700");
+  console.info("%c NORDLYS %c " + window.NORDLYS_VERSION + " ", "background:#7C5CFF;color:#fff;font-weight:700", "background:#FBBF24;color:#141838;font-weight:700");
   if (!customElements.get("nordlys-card")) customElements.define("nordlys-card", AuroraV3Card);
   window.customCards = window.customCards || [];
   window.customCards.push({ type: "nordlys-card", name: "Nordlys", description: "Animeret dashboard på dansk (baseret på Aurora Glass v3, GPL-3.0)." });

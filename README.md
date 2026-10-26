@@ -101,15 +101,9 @@ Kortet har 11 faste lys-pladser. Nøglerne er de originale italienske:
 | bagno_piccolo, bagno_doccia | Lille bad, Badeværelse | 4 |
 | lavanderia, sgabuzzino | Bryggers, Depot | 5 |
 
-## Genopbygning fra originalen
+## Udvikling
 
-Oversættelsen laves af `tools/build.py` ud fra den originale `aurora-v3.js`:
-
-1. Læg originalen som `src/orig.js`.
-2. Sørg for, at `acorn` og `acorn-walk` er installeret.
-3. Kør `python3 tools/build.py tools .`
-
-Alle oversættelser ligger i `tools/da.py`.
+`dist/nordlys.js` er kilden, og der rettes direkte i den. Reglerne for ændringer, versionsnummer og udrulning står i [CLAUDE.md](CLAUDE.md). Scripts i `tools/` er kun historik.
 
 ## Licens
 
