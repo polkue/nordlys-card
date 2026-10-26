@@ -99,6 +99,17 @@ dock: [hus, energi]
 hide: [scener, tips, bevægelse, navn]
 ```
 
+### Affald
+
+`waste` viser en sektion "Affald" under Lys og rum med næste tømning pr. affaldstype. Den er lavet til integrationen [Affaldshåndtering DK](https://github.com/briis/affalddk), hvis sensorer giver ikon, navn og "Om X dage". Andre sensorer, hvor tilstanden er antal dage, virker også. Afhentning i dag eller i morgen markeres med en gul kant.
+
+```yaml
+waste:
+  - sensor.affalddk_min_adresse_rest_madaffald
+  - sensor.affalddk_min_adresse_plast
+  - { e: sensor.affalddk_min_adresse_haveaffald, n: Haveaffald }   # n: eget navn
+```
+
 ### Knapstil
 
 `buttons: kompakt` låser lysknapperne til den kompakte stil med ikoner, og `buttons: billeder` låser dem til billeder. Uden indstillingen gælder det valg, der er gemt i den enkelte browser under "Stil".
