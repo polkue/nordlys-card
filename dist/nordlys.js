@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.5.1";
+window.NORDLYS_VERSION = "2.5.2";
 
 
 /* ---- disegno.js ---- */
@@ -2111,11 +2111,15 @@ window.NORDLYS_VERSION = "2.5.1";
         var key = q[0], cid = q[1]; if (!cid) return;
         Promise.all([
           HASS.callWS({ type: "recorder/statistics_during_period", start_time: st.toISOString(), end_time: now0.toISOString(), statistic_ids: [cid], period: "day", types: ["change"] }),
-          HASS.callWS({ type: "recorder/statistics_during_period", start_time: ms.toISOString(), end_time: now0.toISOString(), statistic_ids: [cid], period: "month", types: ["change"] })
+          HASS.callWS({ type: "recorder/statistics_during_period", start_time: ms.toISOString(), end_time: now0.toISOString(), statistic_ids: [cid], period: "month", types: ["change"] }),
+          /* i dag i 5-minutters statistik, så tallet ikke halter en hel time bagefter */
+          HASS.callWS({ type: "recorder/statistics_during_period", start_time: new Date(now0.getFullYear(), now0.getMonth(), now0.getDate()).toISOString(), end_time: now0.toISOString(), statistic_ids: [cid], period: "5minute", types: ["change"] })
         ]).then(function (r) {
           var c = { days: {}, today: null, yest: null, month: null, lmonth: null, year: 0 }, td = now0.toDateString(), yd = new Date(now0 - 864e5).toDateString();
           (r[0][cid] || []).forEach(function (x) { if (x.change === null || x.change === undefined) return; var k = new Date(tms(x.start)).toDateString(); c.days[k] = x.change; if (k === td) c.today = x.change; if (k === yd) c.yest = x.change; });
           (r[1][cid] || []).forEach(function (x) { if (x.change === null || x.change === undefined) return; var d = new Date(tms(x.start)); if (d.getFullYear() === now0.getFullYear()) c.year += x.change; if (d.getMonth() === now0.getMonth() && d.getFullYear() === now0.getFullYear()) c.month = x.change; if (d.getTime() === m0.getTime()) c.lmonth = x.change; });
+          var t5 = null; (r[2][cid] || []).forEach(function (x) { if (x.change !== null && x.change !== undefined) t5 = (t5 || 0) + x.change; });
+          if (t5 !== null && t5 > (c.today || 0)) { if (c.month !== null) c.month += t5 - (c.today || 0); c.year += t5 - (c.today || 0); c.days[td] = t5; c.today = t5; }
           if (c.today === null) c.today = 0;
           EN[key] = c; renderEnergy(); drawDays();
         }).catch(function () {});
