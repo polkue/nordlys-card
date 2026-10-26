@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.5.2";
+window.NORDLYS_VERSION = "2.5.3";
 
 
 /* ---- disegno.js ---- */
@@ -2137,23 +2137,30 @@ window.NORDLYS_VERSION = "2.5.2";
       var box = $("#en-days"), a = EN.days, sum = $("#en-days-sum"); if (!box) return;
       EN.pDrawn = EN.pEff;
       var eur = EN.dayUnit === "eur";
-      $("#en-days-t").textContent = eur ? "Pris pr. dag" : "Forbrug pr. dag";
+      var DJ = Array.isArray(ENT.energy.daySeries) ? "," + ENT.energy.daySeries.map(function (z) { return String(z).toLowerCase(); }).join(",") + "," : "";
+      var DT = !!DJ && !/,(forbrug|use|sol|solceller|sun),/.test(DJ);
+      $("#en-days-t").textContent = DT ? (eur ? "Køb og salg i kr. pr. dag" : "Køb og salg pr. dag") : (eur ? "Pris pr. dag" : "Forbrug pr. dag");
       if (!a.length) { box.innerHTML = "<div class=\"en-empty\" style=\"position:static;height:120px;display:grid\">Ingen historik</div>"; if (sum) sum.innerHTML = ""; return; }
       var CD = EN.cost && EN.cost.days ? EN.cost.days : {};
       var vals = a.map(function (x) { var c = CD[x.d.toDateString()]; return eur ? (c !== undefined ? c : x.v * EN.pEff) : x.v; }), XD = EN.xdays || {};
       var SER = [["sun", "solceller", "Solceller i alt", "mdi-solar-power-variant"], ["buy", "købt", "Købt i alt", "mdi-transmission-tower-import"], ["sell", "solgt", "Solgt i alt", "mdi-transmission-tower-export"]].filter(function (q) { return XD[q[0]] && Object.keys(XD[q[0]]).length; });
-      var tot = {}, mx = Math.max.apply(null, vals) || 1;
+      /* Nordlys: energy.daySeries = hvilke søjler der vises pr. dag: forbrug, sol, køb, salg (uden nøglen vises alle) */
+      var DSL = Array.isArray(ENT.energy.daySeries) ? ENT.energy.daySeries.map(function (z) { z = String(z).toLowerCase(); return { forbrug: "use", use: "use", sol: "sun", solceller: "sun", sun: "sun", "køb": "buy", kob: "buy", buy: "buy", salg: "sell", sell: "sell" }[z] || z; }) : null;
+      var showUse = !DSL || DSL.indexOf("use") > -1; if (DSL) SER = SER.filter(function (q) { return DSL.indexOf(q[0]) > -1; });
+      var tot = {}, mx = (showUse ? Math.max.apply(null, vals) : 0) || (SER.length ? 0 : 1);
       SER.forEach(function (q) { tot[q[0]] = 0; a.forEach(function (x) { var v = XD[q[0]][x.d.toDateString()]; if (v !== undefined) { tot[q[0]] += v; var rd0 = q[0] === "sell" && EN.rev ? EN.rev.days[x.d.toDateString()] : undefined, vv = eur ? (rd0 !== undefined ? rd0 : v * EN.pEff) : v; if (vv > mx) mx = vv; } }); });
+      if (!mx) mx = 1;
       var today = new Date().toDateString(), wd = ["D", "L", "M", "M", "G", "V", "S"], tk = 0;
       a.forEach(function (x) { tk += x.v; });
       var fv = function (v) { return eur ? Number(v).toLocaleString("da-DK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : fmtKwh(v); };
-      box.classList.toggle("multi", SER.length > 1);
+      box.classList.toggle("multi", SER.length + (showUse ? 1 : 0) > 2);
       box.innerHTML = a.map(function (x, i) {
         var ds = x.d.toDateString(), hp = Math.max(3, vals[i] / mx * 100), title = x.d.toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" }) + " · forbrug " + fmtKwh(x.v) + " kWh · " + fmtEur(x.v * EN.pEff);
         if (!SER.length) return '<div class="day' + (ds === today ? " today" : "") + '" title="' + title + '"><span class="d-v">' + fv(vals[i]) + '</span><span class="bar2" style="height:' + hp + '%"></span><span class="d-l">' + wd[x.d.getDay()] + x.d.getDate() + "</span></div>";
-        var bars = [["", hp]], lab = fv(vals[i]);
+        var bars = showUse ? [["", hp]] : [], lab = showUse ? fv(vals[i]) : "";
         SER.forEach(function (q) { var v = XD[q[0]][ds]; if (v === undefined) { bars.push([q[0], 0]); return; } var rd = q[0] === "sell" && EN.rev ? EN.rev.days[ds] : undefined, vv = eur ? (rd !== undefined ? rd : v * EN.pEff) : v; bars.push([q[0], Math.max(3, vv / mx * 100)]); title += " · " + q[1] + " " + fmtKwh(v) + " kWh"; lab += '<em class="' + q[0] + '">' + fv(vv) + "</em>"; });
-        var wp = Math.max.apply(null, bars.map(function (b) { return b[1]; }));
+        if (!bars.length) bars.push(["", 0]);
+        var wp = Math.max.apply(null, bars.map(function (b) { return b[1]; })) || 1;
         return '<div class="day pair' + (ds === today ? " today" : "") + '" title="' + title + '"><span class="d-v">' + lab + '</span><span class="bars" style="height:' + wp + '%">' + bars.map(function (b) { return '<span class="bar2' + (b[0] ? " " + b[0] : "") + '" style="height:' + (b[1] / wp * 100) + '%"></span>'; }).join("") + '</span><span class="d-l">' + wd[x.d.getDay()] + x.d.getDate() + "</span></div>";
       }).join("");
       var tkr = 0, hasC = Object.keys(CD).length > 0; a.forEach(function (x) { var c = CD[x.d.toDateString()]; tkr += c !== undefined ? c : x.v * EN.pEff; });
