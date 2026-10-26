@@ -50,6 +50,7 @@ entities:
     daySeries: [køb, salg]                  # valgfri: hvilke søjler "pr. dag" viser — forbrug, sol, køb, salg (uden nøglen vises alle)
     dayStack: true                          # valgfri: søjlerne pr. dag lægges oven på hinanden i én søjle, hvor farverne glider over i hinanden
     dayLabel: dato                          # valgfri: skriv 25/10 under søjlerne i stedet for ugedag + dato
+    dayNet: true                            # valgfri: resultatet (salg − køb) under hver søjle; i kr. = solgt for − købt for
     kpiSolar: true                          # valgfri: deler felterne I dag … I år i to, nederste del viser solcelleproduktionen (og "+X kr. solgt")
     kpiNet: true                            # valgfri: nederst i felterne "Resultat ±X kr." = solgt for − købt for
     sellPositive: true                      # valgfri: salg vises med + og køb med − (Køb/Salg-måleren, Udvikling og tooltip)
