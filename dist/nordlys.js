@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.3";
+window.NORDLYS_VERSION = "2.4";
 
 
 /* ---- disegno.js ---- */
@@ -1831,10 +1831,13 @@ window.NORDLYS_VERSION = "2.3";
     function demoPower() { var m = (Date.now() - demoE.t0) / 1000; return Math.max(60, 190 + 90 * Math.sin(m / 9) + 60 * Math.sin(m / 3.1) + (Math.sin(m / 47) > .8 ? 1400 : 0)); }
     /* tariffa €/kWh: helper di Home Assistant (vale su tutti i dispositivi) → copia locale → valore di esempio */
     var PEND = null;
+    function LIVEP() { return String(ENT.energy.price || "").indexOf("sensor.") === 0; }
     function priceInfo() {
       var v = enNum(ENT.energy.price);
       if (PEND && (Date.now() > PEND.until || (v !== null && Math.abs(v - PEND.v) < 1e-6))) PEND = null;
       if (PEND) return { v: PEND.v, src: "ha" };
+      /* Nordlys: energy.price som sensor (fx Energi Data Service) = live timepris, kan ikke rettes i kortet */
+      if (LIVEP()) return { v: v !== null ? v : 0, src: "live" };
       if (v !== null && v > 0) return { v: v, src: "ha" };
       var l = parseFloat(store("price"));
       if (l > 0) return { v: l, src: "local" };
@@ -1863,7 +1866,8 @@ window.NORDLYS_VERSION = "2.3";
       m.pEff = pi.v > 0 ? pi.v : (implied || E.priceDefault);
       m.src = pi.v > 0 ? pi.src : (hasSens ? "sensori" : "esempio");
       /* costo = kWh × tariffa; senza tariffa impostata si usano i sensori di costo che hai già, o un valore di esempio */
-      function cost(kwh, sens) { if (pi.v > 0) return kwh === null ? null : kwh * pi.v; if (sens !== undefined && sens !== null) return sens; return kwh === null ? null : kwh * m.pEff; }
+      if (EN.cost) sc = { today: EN.cost.today, yest: EN.cost.yest, month: EN.cost.month, lmonth: EN.cost.lmonth, year: EN.cost.year };
+      function cost(kwh, sens) { if (EN.cost && sens !== undefined && sens !== null) return sens; if (pi.v > 0) return kwh === null ? null : kwh * pi.v; if (sens !== undefined && sens !== null) return sens; return kwh === null ? null : kwh * m.pEff; }
       m.cToday = cost(m.today, sc.today); m.cYest = cost(m.yest, sc.yest); m.cMonth = cost(m.month, sc.month); m.cLmonth = cost(m.lmonth, sc.lmonth); m.cYear = cost(m.year, sc.year);
       return m;
     }
@@ -1916,7 +1920,8 @@ window.NORDLYS_VERSION = "2.3";
         else if (m.evStatus && EVS[m.evStatus]) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-ev-station\"></i>Elbil <b>" + EVS[m.evStatus] + "</b></span>";
         if (m.evToday !== null && m.evToday !== undefined) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-car-electric\"></i>Ladet i dag <b>" + fmtKwh(m.evToday) + " kWh</b></span>";
       }
-      if (m.power !== null && !m.na) chips += "<span class=\"echip cost\" title=\"Tryk for at ændre elprisen\"><i class=\"mdi mdi-cash\"></i>Koster nu <b>" + fmtEur(m.power / 1000 * m.pEff) + "/h</b></span>";
+      var buyW = m.grid !== undefined && m.grid !== null ? Math.max(0, m.grid * (m.gridUnit === "kW" ? 1000 : 1)) : m.power;
+      if (m.power !== null && !m.na) chips += "<span class=\"echip cost\" title=\"" + (LIVEP() ? "Elpris nu" : "Tryk for at ændre elprisen") + "\"><i class=\"mdi mdi-cash\"></i>Koster nu <b>" + fmtEur(buyW / 1000 * m.pEff) + "/h</b></span>";
       if (m.base !== null) chips += "<span class=\"echip\"><i class=\"mdi mdi-sleep\"></i>Grundforbrug <b>" + Math.round(m.base) + " W</b></span>";
       if (m.avg3 !== null) chips += "<span class=\"echip\"><i class=\"mdi mdi-chart-bell-curve\"></i>Gns. 3 t <b>" + Math.round(m.avg3) + " W</b></span>";
       if (m.volt !== null) chips += "<span class=\"echip\"><i class=\"mdi mdi-sine-wave\"></i>Spænding <b>" + fmtKwh(m.volt).replace(",0", "") + " V</b></span>";
@@ -1925,10 +1930,10 @@ window.NORDLYS_VERSION = "2.3";
       var pb = $("#en-price"), P = m.price;
       if (pb) {
         pb.classList.toggle("unset", P.v <= 0);
-        $("#pb-main").textContent = P.v > 0 ? "Elpris " + fmtP(P.v) + " kr/kWh" : (m.src === "sensori" ? "Elpris ikke sat" : "Eksempel-elpris " + fmtP(m.pEff) + " kr/kWh");
-        $("#pb-sub").textContent = P.src === "ha" ? "Gemt i Home Assistant · pris = kWh × elpris" : P.src === "local" ? "Gemt på denne enhed · pris = kWh × elpris"
+        $("#pb-main").textContent = P.src === "live" ? "Elpris nu " + fmtP(P.v) + " kr/kWh" : P.v > 0 ? "Elpris " + fmtP(P.v) + " kr/kWh" : (m.src === "sensori" ? "Elpris ikke sat" : "Eksempel-elpris " + fmtP(m.pEff) + " kr/kWh");
+        $("#pb-sub").textContent = P.src === "live" ? "Live timepris inkl. moms og tariffer" + (EN.cost ? " · kr. = hver times forbrug × timens pris" : " · pris = kWh × elpris nu") : P.src === "ha" ? "Gemt i Home Assistant · pris = kWh × elpris" : P.src === "local" ? "Gemt på denne enhed · pris = kWh × elpris"
           : m.src === "sensori" ? "Priserne kommer fra dine sensorer (≈ " + fmtP(m.pEff) + " kr/kWh). Indtast din elpris for at se de rigtige priser" : "Indtast din elpris for at se de rigtige priser";
-        $("#pb-cta").textContent = P.v > 0 ? "Ret" : "Indstil";
+        $("#pb-cta").textContent = P.v > 0 ? "Ret" : "Indstil"; $("#pb-cta").parentNode.hidden = P.src === "live";
       }
       if (EN.pDrawn !== EN.pEff && EN.days.length) drawDays();
       // KPI
@@ -1998,9 +2003,9 @@ window.NORDLYS_VERSION = "2.3";
         .catch(function (e) { local(/unauthor|admin|permission/i.test((e && e.message) || (e && e.code) || "") ? "kræver en administrator for at gemme i HA" : "kunne ikke gemme den i HA"); });
     }
     function buildPrice() {
-      var open = function () { openPrice(); };
+      var open = function () { if (LIVEP()) { if (LIVE) moreInfo(ENT.energy.price); return; } openPrice(); };
       $("#en-price").addEventListener("click", open); $("#en-kpis").addEventListener("click", open);
-      $("#en-chips").addEventListener("click", function (e) { if (e.target.closest && e.target.closest(".echip.cost")) openPrice(); });
+      $("#en-chips").addEventListener("click", function (e) { if (e.target.closest && e.target.closest(".echip.cost")) open(); });
       $("#pr-close").addEventListener("click", closePrice); $("#pr-cancel").addEventListener("click", closePrice);
       $("#pricebox").addEventListener("click", function (e) { if (e.target === e.currentTarget) closePrice(); });
       $("#pr-ok").addEventListener("click", savePrice);
@@ -2095,6 +2100,21 @@ window.NORDLYS_VERSION = "2.3";
       HASS.callWS({ type: "recorder/statistics_during_period", start_time: st.toISOString(), end_time: new Date().toISOString(), statistic_ids: [ENT.energy.energyTotal], period: "day", types: ["change"] }).then(function (r) {
         EN.days = (r[ENT.energy.energyTotal] || []).map(function (x) { return { d: new Date(tms(x.start)), v: x.change }; }).filter(function (x) { return x.v !== null && x.v !== undefined; }); drawDays();
       }).catch(function () { EN.days = []; drawDays(); });
+      /* Nordlys: energy.costTotal = samlet kr-tæller; giver kr. pr. dag, i dag, i går, måned og år */
+      var cid = ENT.energy.costTotal;
+      if (cid) {
+        var now0 = new Date(), m0 = new Date(now0.getFullYear(), now0.getMonth() - 1, 1), y0 = new Date(now0.getFullYear(), 0, 1), ms = m0 < y0 ? m0 : y0;
+        Promise.all([
+          HASS.callWS({ type: "recorder/statistics_during_period", start_time: st.toISOString(), end_time: now0.toISOString(), statistic_ids: [cid], period: "day", types: ["change"] }),
+          HASS.callWS({ type: "recorder/statistics_during_period", start_time: ms.toISOString(), end_time: now0.toISOString(), statistic_ids: [cid], period: "month", types: ["change"] })
+        ]).then(function (r) {
+          var c = { days: {}, today: null, yest: null, month: null, lmonth: null, year: 0 }, td = now0.toDateString(), yd = new Date(now0 - 864e5).toDateString();
+          (r[0][cid] || []).forEach(function (x) { if (x.change === null || x.change === undefined) return; var k = new Date(tms(x.start)).toDateString(); c.days[k] = x.change; if (k === td) c.today = x.change; if (k === yd) c.yest = x.change; });
+          (r[1][cid] || []).forEach(function (x) { if (x.change === null || x.change === undefined) return; var d = new Date(tms(x.start)); if (d.getFullYear() === now0.getFullYear()) c.year += x.change; if (d.getMonth() === now0.getMonth() && d.getFullYear() === now0.getFullYear()) c.month = x.change; if (d.getTime() === m0.getTime()) c.lmonth = x.change; });
+          if (c.today === null) c.today = 0;
+          EN.cost = c; renderEnergy(); drawDays();
+        }).catch(function () {});
+      }
       /* Nordlys: ekstra serier pr. dag: solceller (solarEnergy/solarToday), køb (gridImport), salg (gridExport) */
       EN.xdays = {};
       [["sun", ENT.energy.solarEnergy || ENT.energy.solarToday], ["buy", ENT.energy.gridImport], ["sell", ENT.energy.gridExport]].forEach(function (q) {
@@ -2110,7 +2130,8 @@ window.NORDLYS_VERSION = "2.3";
       var eur = EN.dayUnit === "eur";
       $("#en-days-t").textContent = eur ? "Pris pr. dag" : "Forbrug pr. dag";
       if (!a.length) { box.innerHTML = "<div class=\"en-empty\" style=\"position:static;height:120px;display:grid\">Ingen historik</div>"; if (sum) sum.innerHTML = ""; return; }
-      var vals = a.map(function (x) { return eur ? x.v * EN.pEff : x.v; }), XD = EN.xdays || {};
+      var CD = EN.cost && EN.cost.days ? EN.cost.days : {};
+      var vals = a.map(function (x) { var c = CD[x.d.toDateString()]; return eur ? (c !== undefined ? c : x.v * EN.pEff) : x.v; }), XD = EN.xdays || {};
       var SER = [["sun", "solceller", "Solceller i alt", "mdi-solar-power-variant"], ["buy", "købt", "Købt i alt", "mdi-transmission-tower-import"], ["sell", "solgt", "Solgt i alt", "mdi-transmission-tower-export"]].filter(function (q) { return XD[q[0]] && Object.keys(XD[q[0]]).length; });
       var tot = {}, mx = Math.max.apply(null, vals) || 1;
       SER.forEach(function (q) { tot[q[0]] = 0; a.forEach(function (x) { var v = XD[q[0]][x.d.toDateString()]; if (v !== undefined) { tot[q[0]] += v; var vv = eur ? v * EN.pEff : v; if (vv > mx) mx = vv; } }); });
@@ -2126,7 +2147,8 @@ window.NORDLYS_VERSION = "2.3";
         var wp = Math.max.apply(null, bars.map(function (b) { return b[1]; }));
         return '<div class="day pair' + (ds === today ? " today" : "") + '" title="' + title + '"><span class="d-v">' + lab + '</span><span class="bars" style="height:' + wp + '%">' + bars.map(function (b) { return '<span class="bar2' + (b[0] ? " " + b[0] : "") + '" style="height:' + (b[1] / wp * 100) + '%"></span>'; }).join("") + '</span><span class="d-l">' + wd[x.d.getDay()] + x.d.getDate() + "</span></div>";
       }).join("");
-      if (sum) { sum.innerHTML = "<span class=\"echip\"><i class=\"mdi mdi-sigma\"></i>I alt <b>" + fmtKwh(tk) + ' kWh</b> · <b>' + fmtEur(tk * EN.pEff) + "</b></span><span class=\"echip\"><i class=\"mdi mdi-chart-line\"></i>Gennemsnit pr. dag <b>" + fmtKwh(tk / a.length) + ' kWh</b> · <b>' + fmtEur(tk / a.length * EN.pEff) + "</b></span>" + SER.map(function (q) { return "<span class=\"echip " + q[0] + "\"><i class=\"mdi " + q[3] + "\"></i>" + q[2] + " <b>" + fmtKwh(tot[q[0]]) + " kWh</b></span>"; }).join("") + "<span class=\"echip\"><i class=\"mdi mdi-information-outline\"></i>Beregnet med " + fmtP(EN.pEff) + " kr/kWh</span>"; hydrate(sum); }
+      var tkr = 0, hasC = Object.keys(CD).length > 0; a.forEach(function (x) { var c = CD[x.d.toDateString()]; tkr += c !== undefined ? c : x.v * EN.pEff; });
+      if (sum) { sum.innerHTML = "<span class=\"echip\"><i class=\"mdi mdi-sigma\"></i>I alt <b>" + fmtKwh(tk) + ' kWh</b> · <b>' + fmtEur(tkr) + "</b></span><span class=\"echip\"><i class=\"mdi mdi-chart-line\"></i>Gennemsnit pr. dag <b>" + fmtKwh(tk / a.length) + ' kWh</b> · <b>' + fmtEur(tkr / a.length) + "</b></span>" + SER.map(function (q) { return "<span class=\"echip " + q[0] + "\"><i class=\"mdi " + q[3] + "\"></i>" + q[2] + " <b>" + fmtKwh(tot[q[0]]) + " kWh</b></span>"; }).join("") + "<span class=\"echip\"><i class=\"mdi mdi-information-outline\"></i>" + (hasC ? "kr. fra timepriser" + (Object.keys(CD).length < a.length ? " (ældre dage × " + fmtP(EN.pEff) + " kr/kWh)" : "") : "Beregnet med " + fmtP(EN.pEff) + " kr/kWh") + "</span>"; hydrate(sum); }
     }
     function enEnter() { renderEnergy(); enLoad(true); daysLoad(); }
     function buildEnergy() {
