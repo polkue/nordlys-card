@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.5";
+window.NORDLYS_VERSION = "2.5.1";
 
 
 /* ---- disegno.js ---- */
@@ -1359,7 +1359,7 @@ window.NORDLYS_VERSION = "2.5";
     if (S.fx !== "none" && !FX.E[S.fx]) S.fx = "none";
     var drawerOpen = false;
     var clockLive = true, hour = 21, artFront = $("#art-a"), artBack = $("#art-b"), artKey = "", artTok = 0;
-    var userName = "Alex", NONAME = (Array.isArray(CFG.hide) ? CFG.hide : []).some(function (x) { x = String(x).toLowerCase(); return x === "navn" || x === "name"; });
+    var userName = "Alex", NONAME = (Array.isArray(CFG.hide) ? CFG.hide : []).some(function (x) { x = String(x).toLowerCase(); return x === "navn" || x === "name"; }), NOWIN = (Array.isArray(CFG.hide) ? CFG.hide : []).some(function (x) { x = String(x).toLowerCase(); return x === "vinduer" || x === "windows"; }); /* Nordlys: hide: vinduer = ingen lys i husets vinduer */
 
     function snap(h) { var q = clockLive ? 4 : 2; return Math.round(h * q) / q; }
     function setArt(force) {
@@ -1373,6 +1373,7 @@ window.NORDLYS_VERSION = "2.5";
     }
     function buildWindows() {
       var layer = $("#win-layer"); layer.innerHTML = "";
+      if (NOWIN) return;
       (AMB.W[S.world].windows || []).forEach(function (w) {
         var d = el("div", "wglow" + (state.lights[w.k] ? " on" : ""), "", { "data-k": w.k });
         d.style.left = (w.x / 640 * 100) + "%"; d.style.top = (w.y / 260 * 100) + "%"; d.style.width = (w.w / 640 * 100) + "%"; d.style.height = (w.h / 260 * 100) + "%";

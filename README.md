@@ -86,7 +86,7 @@ dock: [hus, energi]
 
 ### Skjul sektioner
 
-`hide` skjuler dele af forsiden: `scener` er "Hurtige scener", `tips` er hjælpeknapperne under topbjælken, `bevægelse` er chippen "Roligt i huset", og `navn` fjerner navnet efter "Godmorgen".
+`hide` skjuler dele af forsiden: `scener` er "Hurtige scener", `tips` er hjælpeknapperne under topbjælken, `bevægelse` er chippen "Roligt i huset", og `navn` fjerner navnet efter "Godmorgen", og `vinduer` slukker lyset i husets vinduer i landskabet.
 
 ```yaml
 hide: [scener, tips, bevægelse, navn]
