@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.1";
+window.NORDLYS_VERSION = "2.2";
 
 
 /* ---- disegno.js ---- */
@@ -1847,7 +1847,7 @@ window.NORDLYS_VERSION = "2.1";
           apps: [{ n: "Vaskemaskine", w: 460, e: .42, ic: "mdi-washing-machine", c: "#38BDF8" }, { n: "Tørretumbler", w: 0, e: .01, ic: "mdi-tumble-dryer", c: "#F472B6" }, { n: "Opvaskemaskine", w: 1080, e: .55, ic: "mdi-dishwasher", c: "#22D3EE" }, { n: "Ovn", w: 0, e: 0, ic: "mdi-stove", c: "#FB923C" }, { n: "Stikdåse", w: 12, e: .14, ic: "mdi-power-socket-eu", c: "#A78BFA" }, { n: "Køleskab", w: 74, e: .62, ic: "mdi-fridge", c: "#34D399" }] };
       } else {
         var lim = enNum(E.limit) || E.limitDefault;
-        m = { power: enNum(E.power) !== null ? enNum(E.power) : enNum(ENT.power), volt: enNum(E.voltage), grid: enNum(E.grid), gridUnit: (sv(E.grid) || { attributes: {} }).attributes.unit_of_measurement, solar: enNum(E.solar), solarUnit: (sv(E.solar) || { attributes: {} }).attributes.unit_of_measurement, solarToday: enNum(E.solarToday), ev: enNum(E.ev), evUnit: (sv(E.ev) || { attributes: {} }).attributes.unit_of_measurement, evToday: enNum(E.evToday), evStatus: (sv(E.evStatus) || {}).state, base: enNum(E.base), avg3: enNum(E.avg3), limit: lim,
+        m = { power: enNum(E.power) !== null ? enNum(E.power) : enNum(ENT.power), volt: enNum(E.voltage), grid: enNum(E.grid), gridUnit: (sv(E.grid) || { attributes: {} }).attributes.unit_of_measurement, solar: enNum(E.solar), solarUnit: (sv(E.solar) || { attributes: {} }).attributes.unit_of_measurement, solarToday: enNum(E.solarToday), ev: enNum(E.ev), evCfg: !!E.ev, evUnit: (sv(E.ev) || { attributes: {} }).attributes.unit_of_measurement, evToday: enNum(E.evToday), evStatus: (sv(E.evStatus) || {}).state, base: enNum(E.base), avg3: enNum(E.avg3), limit: lim,
           today: enNum(E.today), yest: enNum(E.yesterday), month: enNum(E.month), lmonth: enNum(E.lastMonth), year: enNum(E.year),
           na: isUnavail(sv(E.power)),
           apps: E.appliances.map(function (x) { var s = sv(x.p); return { n: x.n, w: enNum(x.p), e: x.e ? enNum(x.e) : null, ic: x.ic, c: x.c, na: !s || isUnavail(s) }; }) };
@@ -1890,7 +1890,7 @@ window.NORDLYS_VERSION = "2.1";
       /* Nordlys: energy.solar = solcelleproduktion (W/kW) i egen måler, energy.solarToday = produceret i dag (kWh), energy.solarPeak = max (W) */
       var dual = m.solar !== undefined && m.solar !== null, hasNet = m.grid !== undefined && m.grid !== null;
       /* Nordlys: energy.ev = elbillader (W/kW) i egen måler, energy.evToday = ladet i dag (kWh), energy.evStatus = laderens tilstand, energy.evPeak = max (W) */
-      var hasEv = m.ev !== undefined && m.ev !== null, nG = 1 + (dual ? 1 : 0) + (hasNet ? 1 : 0) + (hasEv ? 1 : 0);
+      var hasEv = !!m.evCfg, nG = 1 + (dual ? 1 : 0) + (hasNet ? 1 : 0) + (hasEv ? 1 : 0);
       hero.classList.toggle("dual", nG >= 2); hero.classList.toggle("triple", nG >= 3); hero.classList.toggle("quad", nG >= 4); $("#sol-gauge").hidden = !dual; $("#net-gauge").hidden = !hasNet; $("#ev-gauge").hidden = !hasEv; $("#en-glab").hidden = nG < 2;
       /* Nordlys: energy.grid = nettoeffekt mod elnettet (+ køb, − salg) */
       if (hasNet) {
@@ -1906,11 +1906,14 @@ window.NORDLYS_VERSION = "2.1";
         if (m.solarToday !== null && m.solarToday !== undefined) chips += "<span class=\"echip sun\"><i class=\"mdi mdi-solar-power-variant\"></i>Produceret i dag <b>" + fmtKwh(m.solarToday) + " kWh</b></span>";
       }
       if (hasEv) {
-        var ew = Math.max(0, m.ev) * (m.evUnit === "kW" ? 1000 : 1), epk = typeof ENT.energy.evPeak === "number" ? ENT.energy.evPeak : (enNum(ENT.energy.evPeak) || 11000);
-        tweenW($("#ev-num"), $("#ev-unit"), ew);
+        var evNa = m.ev === null || m.ev === undefined; /* lader mangler eller svarer ikke: vis "—" */
+        var ew = evNa ? 0 : Math.max(0, m.ev) * (m.evUnit === "kW" ? 1000 : 1), epk = typeof ENT.energy.evPeak === "number" ? ENT.energy.evPeak : (enNum(ENT.energy.evPeak) || 11000);
+        if (evNa) { var TWev = TW["ev-num"]; if (TWev) { cancelAnimationFrame(TWev.raf); TWev.v = 0; } $("#ev-num").textContent = "—"; $("#ev-unit").textContent = ""; } else tweenW($("#ev-num"), $("#ev-unit"), ew);
         var ed = Math.max(0, Math.min(100, ew / epk * 100)).toFixed(1); $("#ev-arc").setAttribute("stroke-dasharray", ed + " 100"); $("#ev-glow").setAttribute("stroke-dasharray", ed + " 100");
         var EVS = { disconnected: "Ikke tilsluttet", connected_requesting: "Venter på opladning", connected_charging: "Lader", connected_finished: "Færdig" };
-        if (m.evStatus && EVS[m.evStatus]) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-ev-station\"></i>Elbil <b>" + EVS[m.evStatus] + "</b></span>";
+        if (evNa && !sv(ENT.energy.ev)) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-ev-station\"></i>Elbil <b>Ingen lader</b></span>";
+        else if (evNa) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-ev-station\"></i>Elbil <b>Svarer ikke</b></span>";
+        else if (m.evStatus && EVS[m.evStatus]) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-ev-station\"></i>Elbil <b>" + EVS[m.evStatus] + "</b></span>";
         if (m.evToday !== null && m.evToday !== undefined) chips += "<span class=\"echip ev\"><i class=\"mdi mdi-car-electric\"></i>Ladet i dag <b>" + fmtKwh(m.evToday) + " kWh</b></span>";
       }
       if (m.power !== null && !m.na) chips += "<span class=\"echip cost\" title=\"Tryk for at ændre elprisen\"><i class=\"mdi mdi-cash\"></i>Koster nu <b>" + fmtEur(m.power / 1000 * m.pEff) + "/h</b></span>";

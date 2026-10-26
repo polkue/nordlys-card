@@ -38,7 +38,7 @@ entities:
     gridExport: sensor.hovedmaaler_returneret   # valgfri: kWh solgt — salg pr. dag (grøn)
     solarPeak: 7000                       # valgfri: fuldt udslag på solcellemåleren i W (standard 7000)
     solarToday: sensor.solceller_i_dag    # valgfri: produceret i dag (kWh)
-    ev: sensor.lader_effekt               # valgfri: elbillader (W eller kW) — giver en Elbil-måler
+    ev: sensor.lader_effekt               # valgfri: elbillader (W eller kW) — giver en Elbil-måler. Findes sensoren ikke endnu, vises "—" og "Ingen lader"
     evToday: sensor.elbil_i_dag           # valgfri: ladet i dag (kWh)
     evStatus: sensor.lader_tilstand       # valgfri: Zaptec-tilstand (disconnected/connected_charging …) som chip
     evPeak: 11000                         # valgfri: fuldt udslag på elbilmåleren i W (standard 11000)
