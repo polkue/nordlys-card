@@ -34,6 +34,8 @@ entities:
     solar: sensor.solceller_effekt        # valgfri: solcelleproduktion (W eller kW) — giver en ekstra måler ved siden af forbruget
     solarEnergy: sensor.solceller_energi  # valgfri: kWh-tæller til "pr. dag" (ellers bruges solarToday)
     grid: sensor.hovedmaaler_effekt       # valgfri: nettoeffekt mod elnettet (+ køb, − salg) — giver en Køb/Salg-måler
+    gridImport: sensor.hovedmaaler_energi       # valgfri: kWh købt — køb pr. dag (blå)
+    gridExport: sensor.hovedmaaler_returneret   # valgfri: kWh solgt — salg pr. dag (grøn)
     solarPeak: 7000                       # valgfri: fuldt udslag på solcellemåleren i W (standard 7000)
     solarToday: sensor.solceller_i_dag    # valgfri: produceret i dag (kWh)
     energyTotal: sensor.energi_total
@@ -77,10 +79,10 @@ dock: [hus, energi]
 
 ### Skjul sektioner
 
-`hide` skjuler dele af forsiden: `scener` er "Hurtige scener", og `tips` er hjælpeknapperne under topbjælken.
+`hide` skjuler dele af forsiden: `scener` er "Hurtige scener", `tips` er hjælpeknapperne under topbjælken, `bevægelse` er chippen "Roligt i huset", og `navn` fjerner navnet efter "Godmorgen".
 
 ```yaml
-hide: [scener, tips]
+hide: [scener, tips, bevægelse, navn]
 ```
 
 ### Knapstil
