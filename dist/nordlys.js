@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.13";
+window.NORDLYS_VERSION = "2.14";
 
 
 /* ---- disegno.js ---- */
@@ -2396,36 +2396,78 @@ window.NORDLYS_VERSION = "2.13";
   if (!customElements.get("nordlys-card")) customElements.define("nordlys-card", AuroraV3Card);
   window.customCards = window.customCards || [];
   window.customCards.push({ type: "nordlys-card", name: "Nordlys", description: "Animeret dashboard på dansk (baseret på Aurora Glass v3, GPL-3.0)." });
-  /* Nordlys ur: lille, let kort til vægskærme (fx Shelly Wall Display) — kun ur, udetemperatur og forbrug.
-     type: custom:nordlys-ur-card · temperature, weather, power (entiteter) · hide: [dato, hilsen, ude, forbrug] */
+  /* Nordlys ur: let kort til vægskærme (fx Shelly Wall Display på højkant) — ur, ude, forbrug, lys og affald. Ingen animationer.
+     type: custom:nordlys-ur-card · temperature, weather, power · rooms: [{ name, icon, color, lights: [{ e, n, ic }] }] · waste: [entity | { e, n }]
+     hide: [dato, hilsen, ude, forbrug] · scale: 1 (større/mindre) */
   var UR_CSS = ":host{display:block}"
-    + ".ur{font-family:'Manrope',system-ui,sans-serif;color:#F5F7FF;background:linear-gradient(160deg,#151B36,#0D1226);border:1px solid rgba(255,255,255,.10);border-radius:22px;padding:.9em 1em 1em;box-sizing:border-box;-webkit-font-smoothing:antialiased}"
+    + ".ur{font-family:'Manrope',system-ui,sans-serif;color:#F5F7FF;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;gap:.75em}"
+    + ".ur-top{background:linear-gradient(160deg,#151B36,#0D1226);border:1px solid rgba(255,255,255,.10);border-radius:1.2em;padding:.8em .95em .9em}"
     + ".ur-d{font-size:.62em;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6B7599}"
-    + ".ur-g{font-family:'Sora','Manrope',sans-serif;font-weight:700;font-size:1.05em;margin-top:.15em}"
-    + ".ur-t{font-family:'Sora','Manrope',sans-serif;font-weight:800;line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums;font-size:3.6em;margin:.08em 0 .14em;background:linear-gradient(110deg,#F5F7FF 10%,#9DB8FF 55%,#8B7CF6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}"
+    + ".ur-g{font-family:'Sora','Manrope',sans-serif;font-weight:700;font-size:1em;margin-top:.1em}"
+    + ".ur-t{font-family:'Sora','Manrope',sans-serif;font-weight:800;line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums;font-size:3.3em;margin:.06em 0 .14em;background:linear-gradient(110deg,#F5F7FF 10%,#9DB8FF 55%,#8B7CF6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}"
     + ".ur-c{display:flex;flex-wrap:wrap;gap:.4em}"
-    + ".ur-ch{display:inline-flex;align-items:center;gap:.4em;padding:.38em .75em .38em .55em;border-radius:99px;font-size:.66em;font-weight:600;color:#A3AED0;background:rgba(7,10,22,.55);border:1px solid rgba(255,255,255,.10);cursor:pointer;-webkit-tap-highlight-color:transparent}"
+    + ".ur-ch{display:inline-flex;align-items:center;gap:.4em;padding:.38em .75em .38em .55em;border-radius:99px;font-size:.68em;font-weight:600;color:#A3AED0;background:rgba(7,10,22,.55);border:1px solid rgba(255,255,255,.10);cursor:pointer;-webkit-tap-highlight-color:transparent}"
     + ".ur-ch b{color:#F5F7FF;font-weight:700;font-variant-numeric:tabular-nums}.ur-ch ha-icon{--mdc-icon-size:1.25em;color:#9DB8FF}"
     + ".ur-dot{width:.5em;height:.5em;border-radius:50%;background:#34D399}.ur-dot.mid{background:#FBBF24}.ur-dot.hi{background:#FB7185}"
+    + ".ur-h{display:flex;align-items:center;gap:.5em;font-family:'Sora','Manrope',sans-serif;font-weight:700;font-size:.8em;margin:.2em 0 -.2em .1em}.ur-h:before{content:'';width:3px;height:1em;border-radius:2px;background:#7C8CF8}.ur-h small{font-family:'Manrope',sans-serif;font-weight:600;font-size:.82em;color:#6B7599}"
+    + ".ur-rooms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55em}"
+    + ".ur-room{background:linear-gradient(160deg,#151B36,#0D1226);border:1px solid rgba(255,255,255,.10);border-radius:1.1em;padding:.6em}"
+    + ".ur-rh{display:flex;align-items:center;gap:.5em;margin-bottom:.5em}.ur-ri{width:1.8em;height:1.8em;border-radius:.6em;display:grid;place-items:center;background:var(--rc);color:#fff}.ur-ri ha-icon{--mdc-icon-size:1.05em}"
+    + ".ur-rn{font-weight:800;font-size:.8em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ur-rc{font-size:.6em;font-weight:800;padding:.2em .6em;border-radius:99px;color:var(--rc);background:color-mix(in srgb,var(--rc) 18%,transparent)}"
+    + ".ur-ls{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:.45em}"
+    + ".ur-l{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:.3em;padding:.55em;border-radius:.85em;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#F5F7FF;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0}"
+    + ".ur-l .li{width:1.7em;height:1.7em;border-radius:.55em;display:grid;place-items:center;background:rgba(255,255,255,.08);color:#A3AED0}.ur-l .li ha-icon{--mdc-icon-size:1em}"
+    + ".ur-l .sw{position:absolute;top:.6em;right:.55em;width:1.75em;height:1em;border-radius:99px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12)}.ur-l .sw:after{content:'';position:absolute;top:.1em;left:.1em;width:.72em;height:.72em;border-radius:50%;background:#fff}"
+    + ".ur-l b{font-size:.72em;font-weight:800;line-height:1.2;width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.4em;display:flex;align-items:flex-end}.ur-l small{font-size:.6em;font-weight:600;color:#A3AED0}"
+    + ".ur-l.on{background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 30%,transparent),color-mix(in srgb,var(--rc) 8%,transparent));border-color:color-mix(in srgb,var(--rc) 45%,transparent)}.ur-l.on .li{background:var(--rc);color:#fff}.ur-l.on .sw{background:var(--rc)}.ur-l.on .sw:after{left:auto;right:.1em}.ur-l.on small{color:color-mix(in srgb,var(--rc) 65%,#fff)}"
+    + ".ur-l.na{opacity:.5}.ur-room.one .ur-ri{display:none}"
+    + ".ur-w{display:grid;grid-template-columns:repeat(auto-fill,minmax(5.6em,1fr));gap:.5em}"
+    + ".ur-wt{display:flex;flex-direction:column;align-items:center;gap:.3em;padding:.6em .35em;border-radius:1em;border:1px solid rgba(255,255,255,.10);background:linear-gradient(160deg,#151B36,#0D1226);color:#F5F7FF;font:inherit;text-align:center;cursor:pointer;min-width:0}"
+    + ".ur-wt img,.ur-wt ha-icon{width:2em;height:2em;--mdc-icon-size:1.6em}.ur-wt b{font-size:.62em;font-weight:800;line-height:1.2}.ur-wt small{font-size:.58em;font-weight:700;color:#A3AED0}"
+    + ".ur-wt.soon{border-color:rgba(251,191,36,.6)}.ur-wt.soon small{color:#FBBF24}.ur-wt.na{opacity:.5}"
     + "[hidden]{display:none!important}";
   var UR_WX = { "clear-night": "mdi:weather-night", cloudy: "mdi:weather-cloudy", fog: "mdi:weather-fog", hail: "mdi:weather-hail", lightning: "mdi:weather-lightning", "lightning-rainy": "mdi:weather-lightning-rainy", partlycloudy: "mdi:weather-partly-cloudy", pouring: "mdi:weather-pouring", rainy: "mdi:weather-rainy", snowy: "mdi:weather-snowy", "snowy-rainy": "mdi:weather-snowy-rainy", sunny: "mdi:weather-sunny", windy: "mdi:weather-windy", "windy-variant": "mdi:weather-windy-variant", exceptional: "mdi:alert-circle-outline" };
+  var UR_COL = ["#8B5CF6", "#F59E0B", "#22D3EE", "#F43F5E", "#34D399"];
+  function urIc(x) { x = String(x || ""); return x.indexOf("mdi-") === 0 ? "mdi:" + x.slice(4) : x; }
+  function urEsc(x) { return String(x === undefined || x === null ? "" : x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   class NordlysUrCard extends HTMLElement {
-    constructor() { super(); this._r = this.attachShadow({ mode: "open" }); this._c = {}; this._t = null; this._sig = ""; }
+    constructor() { super(); this._r = this.attachShadow({ mode: "open" }); this._c = {}; this._t = null; this._sig = ""; this._pend = {}; }
     setConfig(c) {
-      this._c = c || {}; boot();
-      var hd = (Array.isArray(this._c.hide) ? this._c.hide : []).map(function (x) { return String(x).toLowerCase(); });
-      this._r.innerHTML = "<style>" + UR_CSS + "</style><div class=\"ur\"><div class=\"ur-d\" id=\"d\"" + (hd.indexOf("dato") > -1 ? " hidden" : "") + "></div><div class=\"ur-g\" id=\"g\"" + (hd.indexOf("hilsen") > -1 ? " hidden" : "") + "></div><div class=\"ur-t\" id=\"t\"></div><div class=\"ur-c\">"
-        + "<span class=\"ur-ch\" id=\"ct\"" + (hd.indexOf("ude") > -1 ? " hidden" : "") + "><ha-icon id=\"wi\" icon=\"mdi:thermometer\"></ha-icon>Ude <b id=\"tv\">—</b></span>"
-        + "<span class=\"ur-ch\" id=\"cp\"" + (hd.indexOf("forbrug") > -1 || !this._c.power ? " hidden" : "") + "><ha-icon icon=\"mdi:lightning-bolt\"></ha-icon>Forbrug <b id=\"pv\">—</b><i class=\"ur-dot\" id=\"pd\"></i></span></div></div>";
-      var self = this;
-      this._r.getElementById("ct").addEventListener("click", function () { self._more(self._c.temperature || self._c.weather); });
-      this._r.getElementById("cp").addEventListener("click", function () { self._more(self._c.power); });
-      this._tick(); this._fit();
+      this._c = c || {}; boot(); c = this._c;
+      var hd = (Array.isArray(c.hide) ? c.hide : []).map(function (x) { return String(x).toLowerCase(); }), H = function (k) { return hd.indexOf(k) > -1 ? " hidden" : ""; };
+      var rooms = (Array.isArray(c.rooms) ? c.rooms : []).map(function (r, ri) { return { name: r.name || r.n || "", icon: urIc(r.icon || r.ic || "mdi:lightbulb-group"), color: r.color || UR_COL[ri % UR_COL.length], lights: (Array.isArray(r.lights) ? r.lights : []).map(function (l) { return typeof l === "string" ? { e: l } : { e: l.e || l.entity, n: l.n || l.name, ic: urIc(l.ic || l.icon) }; }).filter(function (l) { return l.e; }) }; }).filter(function (r) { return r.lights.length; });
+      var waste = (Array.isArray(c.waste) ? c.waste : []).map(function (x) { return typeof x === "string" ? { e: x } : { e: x && (x.e || x.entity), n: x && (x.n || x.name) }; }).filter(function (x) { return x.e; });
+      this._rooms = rooms; this._waste = waste;
+      var h = "<style>" + UR_CSS + "</style><div class=\"ur\"><div class=\"ur-top\"><div class=\"ur-d\" id=\"d\"" + H("dato") + "></div><div class=\"ur-g\" id=\"g\"" + H("hilsen") + "></div><div class=\"ur-t\" id=\"t\"></div><div class=\"ur-c\">"
+        + "<span class=\"ur-ch\" id=\"ct\"" + H("ude") + "><ha-icon id=\"wi\" icon=\"mdi:thermometer\"></ha-icon>Ude <b id=\"tv\">—</b></span>"
+        + "<span class=\"ur-ch\" id=\"cp\"" + (c.power ? H("forbrug") : " hidden") + "><ha-icon icon=\"mdi:lightning-bolt\"></ha-icon>Forbrug <b id=\"pv\">—</b><i class=\"ur-dot\" id=\"pd\"></i></span></div></div>";
+      if (rooms.length) {
+        h += "<div class=\"ur-h\">Lys og rum</div><div class=\"ur-rooms\">" + rooms.map(function (r, ri) {
+          var n = Math.min(3, r.lights.length);
+          return "<div class=\"ur-room" + (n === 1 ? " one" : "") + "\" style=\"--rc:" + urEsc(r.color) + ";grid-column:span " + n + "\"><div class=\"ur-rh\"><span class=\"ur-ri\"><ha-icon icon=\"" + urEsc(r.icon) + "\"></ha-icon></span><span class=\"ur-rn\">" + urEsc(r.name) + "</span><span class=\"ur-rc\" id=\"rc" + ri + "\">0/" + r.lights.length + "</span></div><div class=\"ur-ls\" style=\"--n:" + n + "\">"
+            + r.lights.map(function (l, li) { return "<button class=\"ur-l\" type=\"button\" id=\"l" + ri + "_" + li + "\" data-e=\"" + urEsc(l.e) + "\"><span class=\"li\"><ha-icon icon=\"" + urEsc(l.ic || r.icon) + "\"></ha-icon></span><i class=\"sw\"></i><b>" + urEsc(l.n || l.e) + "</b><small>—</small></button>"; }).join("") + "</div></div>";
+        }).join("") + "</div>";
+      }
+      if (waste.length) h += "<div class=\"ur-h\">Affald <small>næste tømning</small></div><div class=\"ur-w\">" + waste.map(function (x, i) { return "<button class=\"ur-wt\" type=\"button\" id=\"w" + i + "\"><ha-icon icon=\"mdi:trash-can-outline\"></ha-icon><b>" + urEsc(x.n || "") + "</b><small>—</small></button>"; }).join("") + "</div>";
+      this._r.innerHTML = h + "</div>";
+      var self = this, R = this._r;
+      R.getElementById("ct").addEventListener("click", function () { self._more(c.temperature || c.weather); });
+      R.getElementById("cp").addEventListener("click", function () { self._more(c.power); });
+      Array.prototype.forEach.call(R.querySelectorAll(".ur-l"), function (b) { b.addEventListener("click", function () { self._toggle(b); }); });
+      waste.forEach(function (x, i) { R.getElementById("w" + i).addEventListener("click", function () { self._more(x.e); }); });
+      this._sig = ""; this._tick(); this._fit(); if (this._hass) this.hass = this._hass;
     }
     _more(id) { if (id) this.dispatchEvent(new CustomEvent("hass-more-info", { bubbles: true, composed: true, detail: { entityId: id } })); }
+    _toggle(b) {
+      var e = b.dataset.e, hs = this._hass; if (!hs || !e) return; var s = hs.states[e]; if (!s || s.state === "unavailable") return;
+      var want = s.state !== "on", self = this; this._pend[e] = { want: want, s0: s, until: Date.now() + 5000 };
+      b.classList.toggle("on", want); b.querySelector("small").textContent = want ? "Tændt" : "Slukket";
+      hs.callService("homeassistant", want ? "turn_on" : "turn_off", { entity_id: e }).catch(function () { delete self._pend[e]; self._sig = ""; self.hass = self._hass; });
+      setTimeout(function () { self._sig = ""; if (self._hass) self.hass = self._hass; }, 5100);
+    }
     _fit() {
-      var self = this, u = this._r.querySelector(".ur"); if (!u) return;
-      var f = function () { var w = self.clientWidth || u.clientWidth; if (w) u.style.fontSize = Math.max(13, Math.min(26, w / 17)) + "px"; };
+      var self = this, u = this._r.querySelector(".ur"); if (!u) return; var k = +this._c.scale || 1;
+      var f = function () { var w = self.clientWidth || u.clientWidth; if (w) u.style.fontSize = (Math.max(12, Math.min(20, w / 24)) * k) + "px"; };
       f(); if (window.ResizeObserver) { if (this._ro) this._ro.disconnect(); this._ro = new ResizeObserver(f); this._ro.observe(this); }
     }
     _tick() {
@@ -2434,24 +2476,45 @@ window.NORDLYS_VERSION = "2.13";
       r.getElementById("t").textContent = p(h) + ":" + p(n.getMinutes());
       r.getElementById("d").textContent = n.toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
       r.getElementById("g").textContent = (h >= 22 || h < 5) ? "Godnat" : h < 12 ? "Godmorgen" : h < 18 ? "God eftermiddag" : "Godaften";
-      var self = this; clearTimeout(this._t); this._t = setTimeout(function () { self._tick(); }, 60500 - n.getSeconds() * 1000 - n.getMilliseconds());
+      var self = this; clearTimeout(this._t); this._t = setTimeout(function () { self._tick(); if (self._hass) { self._sig = ""; self.hass = self._hass; } }, 60500 - n.getSeconds() * 1000 - n.getMilliseconds());
     }
     set hass(hs) {
-      var c = this._c, r = this._r, st = hs.states || {}, tS = st[c.temperature], wS = st[c.weather], pS = st[c.power];
+      this._hass = hs; var c = this._c, r = this._r, st = hs.states || {}, tS = st[c.temperature], wS = st[c.weather], pS = st[c.power], self = this, now = Date.now();
+      if (!r.getElementById("tv")) return;
+      var ids = []; (this._rooms || []).forEach(function (rm) { rm.lights.forEach(function (l) { ids.push(l.e); }); }); (this._waste || []).forEach(function (x) { ids.push(x.e); });
+      var sig = [tS && tS.state, wS && wS.state, wS && wS.attributes.temperature, pS && pS.state].concat(ids.map(function (id) { var s = st[id]; return s ? s.state + (s.attributes.entity_picture || "") : "-"; })).join("|") + Object.keys(this._pend).length;
+      if (sig === this._sig) return; this._sig = sig;
       var t = tS && !isNaN(parseFloat(tS.state)) ? parseFloat(tS.state) : (wS && wS.attributes.temperature !== undefined ? +wS.attributes.temperature : null);
       var w = pS && !isNaN(parseFloat(pS.state)) ? parseFloat(pS.state) * ((pS.attributes.unit_of_measurement === "kW") ? 1000 : 1) : null;
-      var sig = [t, w, wS && wS.state].join("|"); if (sig === this._sig || !r.getElementById("tv")) return; this._sig = sig;
       r.getElementById("tv").textContent = t === null ? "—" : t.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " °C";
       r.getElementById("wi").setAttribute("icon", wS && UR_WX[wS.state] ? UR_WX[wS.state] : "mdi:thermometer");
       r.getElementById("pv").textContent = w === null ? "—" : w >= 1000 ? (w / 1000).toLocaleString("da-DK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " kW" : Math.round(w) + " W";
       var lim = +c.limit || 11000; r.getElementById("pd").className = "ur-dot" + (w !== null && w > lim * .7 ? " hi" : w !== null && w > lim * .35 ? " mid" : "");
+      (this._rooms || []).forEach(function (rm, ri) {
+        var cnt = 0;
+        rm.lights.forEach(function (l, li) {
+          var s = st[l.e], b = r.getElementById("l" + ri + "_" + li), na = !s || s.state === "unavailable" || s.state === "unknown", on = !!s && s.state === "on", pd = self._pend[l.e];
+          if (pd) { if ((on === pd.want && s !== pd.s0) || now > pd.until || na) delete self._pend[l.e]; else on = pd.want; }
+          if (on) cnt++;
+          b.classList.toggle("on", on); b.classList.toggle("na", na);
+          b.querySelector("small").textContent = na ? "Ikke tilgængelig" : on ? "Tændt" : "Slukket";
+        });
+        r.getElementById("rc" + ri).textContent = cnt + "/" + rm.lights.length;
+      });
+      (this._waste || []).forEach(function (x, i) {
+        var s = st[x.e], a = (s && s.attributes) || {}, na = !s || s.state === "unavailable" || s.state === "unknown", d = na ? NaN : parseInt(s.state, 10), b = r.getElementById("w" + i);
+        var nm = x.n || a.name || a.friendly_name || x.e, dur = na ? "Ikke tilgængelig" : (d === 0 ? "I dag" : d === 1 ? "I morgen" : (a.duration || ("Om " + s.state + " dage")));
+        var pic = a.entity_picture ? "<img src=\"" + urEsc(a.entity_picture) + "\" alt=\"\">" : "<ha-icon icon=\"mdi:trash-can-outline\"></ha-icon>";
+        var hh = pic + "<b>" + urEsc(nm) + "</b><small>" + urEsc(dur) + "</small>"; if (b.dataset.sig !== hh) { b.dataset.sig = hh; b.innerHTML = hh; }
+        b.className = "ur-wt" + (d <= 1 ? " soon" : "") + (na ? " na" : "");
+      });
     }
     connectedCallback() { this._tick(); }
     disconnectedCallback() { clearTimeout(this._t); }
-    getCardSize() { return 3; }
+    getCardSize() { return 8; }
     static getStubConfig() { return { temperature: "", weather: "", power: "" }; }
   }
   if (!customElements.get("nordlys-ur-card")) customElements.define("nordlys-ur-card", NordlysUrCard);
-  window.customCards.push({ type: "nordlys-ur-card", name: "Nordlys ur", description: "Let ur med udetemperatur og forbrug til vægskærme." });
+  window.customCards.push({ type: "nordlys-ur-card", name: "Nordlys ur", description: "Let kort til vægskærme: ur, ude, forbrug, lys og affald." });
   console.info("%c NORDLYS %c kort indlæst ", "background:#7C5CFF;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#1b1740;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");
 })();

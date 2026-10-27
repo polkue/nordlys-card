@@ -115,9 +115,11 @@ waste:
   - { e: sensor.affalddk_min_adresse_haveaffald, n: Haveaffald }   # n: eget navn
 ```
 
-### Ur til vægskærm
+### Vægskærm
 
-`custom:nordlys-ur-card` er et lille, selvstændigt kort med kun dato, hilsen, ur, udetemperatur og forbrug. Det er lavet til svage vægskærme som Shelly Wall Display: ingen animationer, ingen sløring og ingen baggrundsbilleder. Teksten skalerer efter kortets bredde.
+`custom:nordlys-ur-card` er et let, selvstændigt kort til svage vægskærme som Shelly Wall Display på højkant. Det viser dato, hilsen, ur, udetemperatur, forbrug, lys pr. rum og affald. Der er ingen animationer, ingen sløring og ingen baggrundsbilleder. Teksten skalerer efter kortets bredde.
+
+Rum med 3 lys fylder en hel række, og rum med færre lys deler rækken.
 
 ```yaml
 type: custom:nordlys-ur-card
@@ -125,7 +127,16 @@ temperature: sensor.udendors_temperatur   # valgfri: ellers bruges temperaturen 
 weather: weather.forecast_hjem            # valgfri: vejrikon i Ude-chippen
 power: sensor.effekt_hus                  # valgfri: Forbrug-chippen
 limit: 11000                              # valgfri: W; prikken bliver gul over 35 % og rød over 70 %
+scale: 1                                  # valgfri: 0.9 gør alt 10 % mindre
 hide: [dato, hilsen]                      # valgfri: skjul dato, hilsen, ude eller forbrug
+rooms:                                    # valgfri: tryk på et lys tænder/slukker det
+  - name: Stue
+    icon: mdi:sofa
+    color: "#8B5CF6"                      # valgfri
+    lights:
+      - { e: light.stue, n: Stue, ic: mdi:sofa }
+waste:                                    # valgfri: som waste i hovedkortet
+  - sensor.affalddk_min_adresse_rest_madaffald
 ```
 
 ### Knapstil
