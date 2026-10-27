@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.19";
+window.NORDLYS_VERSION = "2.20";
 
 
 /* ---- disegno.js ---- */
@@ -1122,6 +1122,7 @@ window.NORDLYS_VERSION = "2.19";
         if (r.cell) body += '<div class="sens-cell sensors">' + chips + "</div>"; else if (chips) body += '<div class="sensors strip">' + chips + "</div>";
         card.innerHTML = '<div class="room-head"><span class="r-ico"><i class="mdi ' + r.ic + '"></i></span><h3>' + r.n + '</h3><span class="count">0/' + r.l.length + '</span></div><div class="bar"><i></i></div><div class="room-body">' + body + "</div>";
         hydrate(card);
+        $$(".room-head .r-ico, .room-head h3", card).forEach(function (n) { n.addEventListener("click", function () { if (HOST.hasAttribute("data-rtoggle")) roomToggle(card); }); });
         box.appendChild(card);
       });
       $$(".orb").forEach(function (o) {
@@ -1147,10 +1148,59 @@ window.NORDLYS_VERSION = "2.19";
           render();
         });
         o.addEventListener("animationend", function (e) { if (e.animationName === "pop") o.classList.remove("pop"); });
-        if (LIVE) longPress(o, function () { moreInfo(ENT.lights[o.dataset.light]); });
+        if (LIVE) longPress(o, function () { if (!o._drag) moreInfo(ENT.lights[o.dataset.light]); });
+        if (LIVE) dimDrag(o);
       });
       $$("[data-op]").forEach(function (c) { c.addEventListener("click", function () { onOpenTap(c.dataset.op); }); c.style.cursor = "pointer"; });
       $$(".sens[data-sensor]").forEach(function (c) { if (LIVE) { c.addEventListener("click", function () { moreInfo(availId(ENT.motion[c.dataset.sensor])); }); c.style.cursor = "pointer"; } });
+    }
+    /* Nordlys: roomToggle — ét tryk på rummet: er noget tændt, slukkes alt; ellers tændes alt */
+    function roomToggle(card) {
+      var ks = $$(".orb", card).map(function (o) { return o.dataset.light; }).filter(function (k) { return !LIVE || !isUnavail(sv(ENT.lights[k])); });
+      if (!ks.length) return;
+      var want = !ks.some(function (k) { return state.lights[k]; });
+      if (LIVE) {
+        ks.forEach(function (k) { LSEQ[k] = (LSEQ[k] || 0) + 1; LPEND[k] = { want: want, until: Date.now() + 6000, s0: sv(ENT.lights[k]) }; });
+        call("homeassistant", want ? "turn_on" : "turn_off", { entity_id: ks.map(function (k) { return ENT.lights[k]; }) });
+        later(function () { syncLights(); render(); }, 4000);
+      }
+      ks.forEach(function (k) { state.lights[k] = want; }); state.scene = null;
+      render();
+    }
+    /* Nordlys: lightSlider — lysstyrke for en dæmpbar lampe, 0 når slukket */
+    function lightBri(k) {
+      var s = sv(ENT.lights[k]); if (!s || !s.attributes) return null;
+      var modes = s.attributes.supported_color_modes || [];
+      if (!modes.some(function (m) { return m !== "onoff"; })) return null;
+      return s.state === "on" ? Math.max(1, Math.round((s.attributes.brightness || 255) / 2.55)) : 0;
+    }
+    function dimDrag(o) {
+      o.addEventListener("click", function (e) { if (o._sup) { e.stopImmediatePropagation(); e.preventDefault(); o._sup = false; } }, true);
+      o.addEventListener("pointerdown", function (e) {
+        if (!HOST.hasAttribute("data-lslider") || !HOST.hasAttribute("data-llist") || !o.classList.contains("dim")) return;
+        var x0 = e.clientX, y0 = e.clientY, active = false, r = o.getBoundingClientRect(), pid = e.pointerId;
+        function pct(x) { return Math.max(1, Math.min(100, Math.round((x - r.left) / r.width * 100))); }
+        function done() { o.removeEventListener("pointermove", mv); o.removeEventListener("pointerup", up); o.removeEventListener("pointercancel", done); o.classList.remove("dragging"); o._drag = false; }
+        function mv(ev) {
+          var dx = ev.clientX - x0, dy = ev.clientY - y0;
+          if (!active) {
+            if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { active = true; o._drag = true; o.classList.add("dragging"); try { o.setPointerCapture(pid); } catch (_) {} }
+            else { if (Math.abs(dy) > 8) done(); return; }
+          }
+          o._dp = pct(ev.clientX); o.style.setProperty("--bri", o._dp + "%"); $(".o-state", o).textContent = "Lysstyrke " + o._dp + "%";
+        }
+        function up() {
+          if (active && o._dp) {
+            var k = o.dataset.light, p = o._dp;
+            o._hold = { p: p, until: Date.now() + 6000 }; o._sup = true; setTimeout(function () { o._sup = false; }, 500);
+            LSEQ[k] = (LSEQ[k] || 0) + 1; LPEND[k] = { want: true, until: Date.now() + 6000, s0: sv(ENT.lights[k]) };
+            call("light", "turn_on", { entity_id: ENT.lights[k], brightness_pct: p });
+            state.lights[k] = true; state.scene = null;
+          }
+          done(); render();
+        }
+        o.addEventListener("pointermove", mv); o.addEventListener("pointerup", up); o.addEventListener("pointercancel", done);
+      });
     }
     function buildSecurity() {
       var mt = $("#motion-tiles");
@@ -1178,7 +1228,15 @@ window.NORDLYS_VERSION = "2.19";
         var na = LIVE && isUnavail(sv(ENT.lights[o.dataset.light]));
         if (na) nUn++;
         o.classList.toggle("na", na);
-        $(".o-state", o).textContent = na ? "Ikke tilgængelig" : (on ? "Tændt" : "Slukket");
+        var stTxt = na ? "Ikke tilgængelig" : (on ? "Tændt" : "Slukket");
+        if (LIVE && HOST.hasAttribute("data-lslider")) {
+          var b = na ? null : lightBri(o.dataset.light), h = o._hold;
+          if (h && (Date.now() > h.until || b === h.p || (b && Math.abs(b - h.p) <= 2))) h = o._hold = null;
+          if (h) b = h.p;
+          o.classList.toggle("dim", b !== null);
+          if (b !== null && !o._drag) { o.style.setProperty("--bri", (on ? b : 0) + "%"); if (on) stTxt = "Tændt · " + b + "%"; }
+        }
+        if (!o._drag) $(".o-state", o).textContent = stTxt;
         refreshImg(o);
       });
       $$(".room").forEach(function (r) {
@@ -2340,7 +2398,7 @@ window.NORDLYS_VERSION = "2.19";
     "i.mdi ha-icon { --mdc-icon-size: 1em; display: flex; width: 1em; height: 1em; }",
     ".scroll { scrollbar-width: thin; }",
     /* Nordlys: ens højde på kompakte lysknapper, også når et navn fylder to linjer */
-    ":host([data-llist]) .room-body { grid-template-columns: 1fr !important; gap: 6px !important; } :host([data-llist]) .room.w3, :host([data-llist]) .room.w2 { grid-column: auto; } :host([data-llist]) .orb { aspect-ratio: auto !important; min-height: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: 12px; padding: 8px 12px !important; border-radius: 16px; } :host([data-llist]) .orb .o-img, :host([data-llist]) .orb .o-shade, :host([data-llist]) .orb .edit-badge { display: none !important; } :host([data-llist]) .orb .o-ico { display: grid !important; flex: none; width: 38px; height: 38px; border-radius: 13px; font-size: 1.4rem; } :host([data-llist]) .orb .o-txt { position: static !important; min-height: 0 !important; flex: 1; min-width: 0; justify-content: center !important; } :host([data-llist]) .orb .o-name { text-shadow: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } :host([data-llist]) .orb .o-state { color: var(--dim); } :host([data-llist]) .orb[aria-pressed=\"true\"] .o-state { color: color-mix(in srgb, var(--room) 70%, var(--text)); } :host([data-llist]) .orb[aria-pressed=\"true\"] { background: linear-gradient(100deg, color-mix(in srgb, var(--room) 26%, transparent), color-mix(in srgb, var(--room) 6%, transparent)); } :host([data-llist]) .orb[aria-pressed=\"true\"] .o-ico { background: var(--room); color: #fff; } :host([data-llist]) .orb .sw { position: relative !important; top: auto !important; right: auto !important; order: 3; flex: none; } :host([data-llist]) .room { padding: 14px; gap: 10px; }",
+    ":host([data-llist]) .room-body { grid-template-columns: 1fr !important; gap: 6px !important; } :host([data-llist]) .room.w3, :host([data-llist]) .room.w2 { grid-column: auto; } :host([data-llist]) .orb { aspect-ratio: auto !important; min-height: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: 12px; padding: 8px 12px !important; border-radius: 16px; } :host([data-llist]) .orb .o-img, :host([data-llist]) .orb .o-shade, :host([data-llist]) .orb .edit-badge { display: none !important; } :host([data-llist]) .orb .o-ico { display: grid !important; flex: none; width: 38px; height: 38px; border-radius: 13px; font-size: 1.4rem; } :host([data-llist]) .orb .o-txt { position: static !important; min-height: 0 !important; flex: 1; min-width: 0; justify-content: center !important; } :host([data-llist]) .orb .o-name { text-shadow: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } :host([data-llist]) .orb .o-state { color: var(--dim); } :host([data-llist]) .orb[aria-pressed=\"true\"] .o-state { color: color-mix(in srgb, var(--room) 70%, var(--text)); } :host([data-llist]) .orb[aria-pressed=\"true\"] { background: linear-gradient(100deg, color-mix(in srgb, var(--room) 26%, transparent), color-mix(in srgb, var(--room) 6%, transparent)); } :host([data-llist]) .orb[aria-pressed=\"true\"] .o-ico { background: var(--room); color: #fff; } :host([data-llist]) .orb .sw { position: relative !important; top: auto !important; right: auto !important; order: 3; flex: none; } :host([data-llist]) .room { padding: 14px; gap: 10px; } :host([data-llist]) .room-head { padding: 0 13px; gap: 12px; } :host([data-llist]) .room-head .r-ico { flex: none; width: 38px; height: 38px; } :host([data-llist]) .orb { gap: 12px !important; } :host([data-rtoggle]) .room-head .r-ico, :host([data-rtoggle]) .room-head h3 { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .2s; } :host([data-rtoggle]) .room-head .r-ico:active { transform: scale(.9); } :host([data-llist][data-lslider]) .orb.dim { touch-action: pan-y; } :host([data-llist][data-lslider]) .orb.dim::before { content: \"\"; position: absolute; left: 0; top: 0; bottom: 0; width: var(--bri, 0%); background: color-mix(in srgb, var(--room) 34%, transparent); border-radius: inherit; pointer-events: none; transition: width .25s; z-index: 0; } :host([data-llist][data-lslider]) .orb.dim.dragging::before { transition: none; } :host([data-llist][data-lslider]) .orb.dim > * { position: relative; z-index: 1; }",
     ":host([data-noart]) .hero-art, :host([data-noart]) #fx-hero, :host([data-noart]) .hero-tag { display: none !important; } :host([data-noart]) .hero { min-height: 0 !important; } :host([data-noart]) .hero-body { padding: 16px 20px 18px !important; }",
     ":host([data-btn=\"compact\"]) .o-name { line-height: 1.25; } :host([data-btn=\"compact\"]) .o-txt { justify-content: flex-end; min-height: calc(2.375rem + 1.1rem); }"
   ].join("\n");
@@ -2365,6 +2423,10 @@ window.NORDLYS_VERSION = "2.19";
       var hdA = Array.isArray(this._config.hide) ? this._config.hide.map(function (x) { return String(x).toLowerCase(); }) : [];
       /* Nordlys: lightLayout: liste = lysknapperne som aflange rækker under hinanden (ikon, navn, kontakt) */
       if (String(this._config.lightLayout || "").toLowerCase() === "liste" || String(this._config.lightLayout || "").toLowerCase() === "list") this.setAttribute("data-llist", "");
+      /* Nordlys: roomToggle: true = tryk på rummets ikon/navn tænder eller slukker alle rummets lys */
+      if (this._config.roomToggle === true) this.setAttribute("data-rtoggle", "");
+      /* Nordlys: lightSlider: true = træk vandret hen over en lysrække (lightLayout: liste) for at dæmpe */
+      if (this._config.lightSlider === true) this.setAttribute("data-lslider", "");
       if (hdA.indexOf("landskab") > -1 || hdA.indexOf("landscape") > -1 || hdA.indexOf("hus-billede") > -1) this.setAttribute("data-noart", "");
       /* Nordlys: fit: true skalerer kortet automatisk, så forsiden (Hus) passer i skærmens højde */
       if (this._config.fit === true || this._config.scale === "auto") { this.setAttribute("data-scaled", ""); this._fitOn = true; }

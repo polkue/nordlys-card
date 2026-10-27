@@ -175,6 +175,24 @@ dock: [hus, energi, affald]
 lightLayout: liste
 ```
 
+I listevisningen står rummets ikon og navn på linje med lampernes ikoner og navne.
+
+### Tænd og sluk et helt rum
+
+`roomToggle: true` gør rummets ikon og navn trykbare. Er bare én lampe i rummet tændt, slukker et tryk alle rummets lamper. Er alle slukket, tænder et tryk dem alle. Lamper, der ikke er tilgængelige, springes over.
+
+```yaml
+roomToggle: true
+```
+
+### Dæmp med en slider
+
+`lightSlider: true` virker sammen med `lightLayout: liste`. For dæmpbare lamper viser rækken lysstyrken som en farvet bjælke, og tilstanden viser procent, fx "Tændt · 60%". Træk vandret hen over rækken for at sætte lysstyrken; den sendes, når du slipper. Et almindeligt tryk tænder og slukker stadig, og lodret træk ruller siden som før. Lamper, der kun kan tænde og slukke, får ingen slider.
+
+```yaml
+lightSlider: true
+```
+
 ### Knapstil
 
 `buttons: kompakt` låser lysknapperne til den kompakte stil med ikoner, og `buttons: billeder` låser dem til billeder. Uden indstillingen gælder det valg, der er gemt i den enkelte browser under "Stil".
