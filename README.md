@@ -59,6 +59,7 @@ entities:
     kpiSolar: true                          # valgfri: deler felterne I dag … I år i to, nederste del viser solcelleproduktionen (og "+X kr. solgt")
     kpiNet: true                            # valgfri: nederst i felterne "Resultat ±X kr." = solgt for − købt for
     sellPositive: true                      # valgfri: salg vises med + og køb med − (Køb/Salg-måleren, Udvikling, tooltip og kr. brugt i felterne, der vises med rødt minus)
+    signalColors: true                      # valgfri: tallet på solcellemåleren bliver grønt, når der produceres; tallet ved Køb er rødt og ved Salg grønt
 labels:
   lights:            # visningsnavn pr. lys-plads
     salotto: Stue
