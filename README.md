@@ -120,7 +120,7 @@ waste:
 `scale` gør hele kortet mindre (eller større) med samme design og menuer, fx til en lille vægskærm på højkant. Kortet fylder stadig hele skærmens højde.
 
 ```yaml
-scale: 0.65
+scale: 0.55   # Shelly Wall Display X2i på højkant (720×1440) — alt på én skærm
 ```
 
 ### Vægskærm
