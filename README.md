@@ -188,7 +188,7 @@ roomToggle: true
 
 ### Dæmp med en slider
 
-`lightSlider: true` virker sammen med `lightLayout: liste`. For dæmpbare lamper viser rækken lysstyrken som en farvet bjælke, og tilstanden viser procent, fx "Tændt · 60%". Træk vandret hen over rækken for at sætte lysstyrken; den sendes, når du slipper. Et almindeligt tryk tænder og slukker stadig, og lodret træk ruller siden som før. Lamper, der kun kan tænde og slukke, får ingen slider.
+`lightSlider: true` virker både med `lightLayout: liste` og med de almindelige lysknapper. For dæmpbare lamper viser rækken eller knappen lysstyrken som en farvet bjælke, og tilstanden viser procent, fx "Tændt · 60%". Træk vandret hen over rækken for at sætte lysstyrken; den sendes, når du slipper. Et almindeligt tryk tænder og slukker stadig, og lodret træk ruller siden som før. Lamper, der kun kan tænde og slukke, får ingen slider.
 
 ```yaml
 lightSlider: true
