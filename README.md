@@ -158,6 +158,15 @@ waste:                                    # valgfri: som waste i hovedkortet
   - sensor.affalddk_min_adresse_rest_madaffald
 ```
 
+### Affald i egen fane
+
+`wasteTab: true` flytter Affald fra forsiden til sin egen fane i bundmenuen med større felter. Tilføj `affald` til `dock`, hvis du bruger `dock`.
+
+```yaml
+wasteTab: true
+dock: [hus, energi, affald]
+```
+
 ### Knapstil
 
 `buttons: kompakt` låser lysknapperne til den kompakte stil med ikoner, og `buttons: billeder` låser dem til billeder. Uden indstillingen gælder det valg, der er gemt i den enkelte browser under "Stil".
