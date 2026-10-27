@@ -44,6 +44,7 @@ entities:
     evPeak: 11000                         # valgfri: fuldt udslag på elbilmåleren i W (standard 11000)
     evEnergy: sensor.lader_energi         # valgfri: laderens samlede kWh-tæller — bruges af kpiEv (ellers evToday)
     kpiEv: true                           # valgfri: viser elbilens kWh og andel af forbruget i felterne I dag … I år
+    kpiLayout: liste                      # valgfri: felterne I dag … I år som aflange rækker under hinanden (samme form som lightLayout: liste)
     chartEv: true                         # valgfri: tegner laderens effekt (ev) som lilla kurve i Udvikling
     evCost: sensor.elbil_omkostning_total # valgfri: kr-tæller for ladning (ladeeffekt × timepris, integreret) — giver elbilens kr. i felterne og pr. dag. Timer før tælleren fandtes regnes som timens kWh × timens pris (kræver at price er en sensor)
     dayEv: true                           # valgfri: elbilens kWh (og kr.) som egen lilla søjle i "Forbrug pr. dag"; kan også vælges med daySeries: [..., elbil]
