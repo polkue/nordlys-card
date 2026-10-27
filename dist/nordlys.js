@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.12";
+window.NORDLYS_VERSION = "2.13";
 
 
 /* ---- disegno.js ---- */
@@ -2396,5 +2396,62 @@ window.NORDLYS_VERSION = "2.12";
   if (!customElements.get("nordlys-card")) customElements.define("nordlys-card", AuroraV3Card);
   window.customCards = window.customCards || [];
   window.customCards.push({ type: "nordlys-card", name: "Nordlys", description: "Animeret dashboard på dansk (baseret på Aurora Glass v3, GPL-3.0)." });
+  /* Nordlys ur: lille, let kort til vægskærme (fx Shelly Wall Display) — kun ur, udetemperatur og forbrug.
+     type: custom:nordlys-ur-card · temperature, weather, power (entiteter) · hide: [dato, hilsen, ude, forbrug] */
+  var UR_CSS = ":host{display:block}"
+    + ".ur{font-family:'Manrope',system-ui,sans-serif;color:#F5F7FF;background:linear-gradient(160deg,#151B36,#0D1226);border:1px solid rgba(255,255,255,.10);border-radius:22px;padding:.9em 1em 1em;box-sizing:border-box;-webkit-font-smoothing:antialiased}"
+    + ".ur-d{font-size:.62em;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6B7599}"
+    + ".ur-g{font-family:'Sora','Manrope',sans-serif;font-weight:700;font-size:1.05em;margin-top:.15em}"
+    + ".ur-t{font-family:'Sora','Manrope',sans-serif;font-weight:800;line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums;font-size:3.6em;margin:.08em 0 .14em;background:linear-gradient(110deg,#F5F7FF 10%,#9DB8FF 55%,#8B7CF6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}"
+    + ".ur-c{display:flex;flex-wrap:wrap;gap:.4em}"
+    + ".ur-ch{display:inline-flex;align-items:center;gap:.4em;padding:.38em .75em .38em .55em;border-radius:99px;font-size:.66em;font-weight:600;color:#A3AED0;background:rgba(7,10,22,.55);border:1px solid rgba(255,255,255,.10);cursor:pointer;-webkit-tap-highlight-color:transparent}"
+    + ".ur-ch b{color:#F5F7FF;font-weight:700;font-variant-numeric:tabular-nums}.ur-ch ha-icon{--mdc-icon-size:1.25em;color:#9DB8FF}"
+    + ".ur-dot{width:.5em;height:.5em;border-radius:50%;background:#34D399}.ur-dot.mid{background:#FBBF24}.ur-dot.hi{background:#FB7185}"
+    + "[hidden]{display:none!important}";
+  var UR_WX = { "clear-night": "mdi:weather-night", cloudy: "mdi:weather-cloudy", fog: "mdi:weather-fog", hail: "mdi:weather-hail", lightning: "mdi:weather-lightning", "lightning-rainy": "mdi:weather-lightning-rainy", partlycloudy: "mdi:weather-partly-cloudy", pouring: "mdi:weather-pouring", rainy: "mdi:weather-rainy", snowy: "mdi:weather-snowy", "snowy-rainy": "mdi:weather-snowy-rainy", sunny: "mdi:weather-sunny", windy: "mdi:weather-windy", "windy-variant": "mdi:weather-windy-variant", exceptional: "mdi:alert-circle-outline" };
+  class NordlysUrCard extends HTMLElement {
+    constructor() { super(); this._r = this.attachShadow({ mode: "open" }); this._c = {}; this._t = null; this._sig = ""; }
+    setConfig(c) {
+      this._c = c || {}; boot();
+      var hd = (Array.isArray(this._c.hide) ? this._c.hide : []).map(function (x) { return String(x).toLowerCase(); });
+      this._r.innerHTML = "<style>" + UR_CSS + "</style><div class=\"ur\"><div class=\"ur-d\" id=\"d\"" + (hd.indexOf("dato") > -1 ? " hidden" : "") + "></div><div class=\"ur-g\" id=\"g\"" + (hd.indexOf("hilsen") > -1 ? " hidden" : "") + "></div><div class=\"ur-t\" id=\"t\"></div><div class=\"ur-c\">"
+        + "<span class=\"ur-ch\" id=\"ct\"" + (hd.indexOf("ude") > -1 ? " hidden" : "") + "><ha-icon id=\"wi\" icon=\"mdi:thermometer\"></ha-icon>Ude <b id=\"tv\">—</b></span>"
+        + "<span class=\"ur-ch\" id=\"cp\"" + (hd.indexOf("forbrug") > -1 || !this._c.power ? " hidden" : "") + "><ha-icon icon=\"mdi:lightning-bolt\"></ha-icon>Forbrug <b id=\"pv\">—</b><i class=\"ur-dot\" id=\"pd\"></i></span></div></div>";
+      var self = this;
+      this._r.getElementById("ct").addEventListener("click", function () { self._more(self._c.temperature || self._c.weather); });
+      this._r.getElementById("cp").addEventListener("click", function () { self._more(self._c.power); });
+      this._tick(); this._fit();
+    }
+    _more(id) { if (id) this.dispatchEvent(new CustomEvent("hass-more-info", { bubbles: true, composed: true, detail: { entityId: id } })); }
+    _fit() {
+      var self = this, u = this._r.querySelector(".ur"); if (!u) return;
+      var f = function () { var w = self.clientWidth || u.clientWidth; if (w) u.style.fontSize = Math.max(13, Math.min(26, w / 17)) + "px"; };
+      f(); if (window.ResizeObserver) { if (this._ro) this._ro.disconnect(); this._ro = new ResizeObserver(f); this._ro.observe(this); }
+    }
+    _tick() {
+      var r = this._r, n = new Date(), p = function (x) { return (x < 10 ? "0" : "") + x; }, h = n.getHours();
+      if (!r.getElementById("t")) return;
+      r.getElementById("t").textContent = p(h) + ":" + p(n.getMinutes());
+      r.getElementById("d").textContent = n.toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long" });
+      r.getElementById("g").textContent = (h >= 22 || h < 5) ? "Godnat" : h < 12 ? "Godmorgen" : h < 18 ? "God eftermiddag" : "Godaften";
+      var self = this; clearTimeout(this._t); this._t = setTimeout(function () { self._tick(); }, 60500 - n.getSeconds() * 1000 - n.getMilliseconds());
+    }
+    set hass(hs) {
+      var c = this._c, r = this._r, st = hs.states || {}, tS = st[c.temperature], wS = st[c.weather], pS = st[c.power];
+      var t = tS && !isNaN(parseFloat(tS.state)) ? parseFloat(tS.state) : (wS && wS.attributes.temperature !== undefined ? +wS.attributes.temperature : null);
+      var w = pS && !isNaN(parseFloat(pS.state)) ? parseFloat(pS.state) * ((pS.attributes.unit_of_measurement === "kW") ? 1000 : 1) : null;
+      var sig = [t, w, wS && wS.state].join("|"); if (sig === this._sig || !r.getElementById("tv")) return; this._sig = sig;
+      r.getElementById("tv").textContent = t === null ? "—" : t.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " °C";
+      r.getElementById("wi").setAttribute("icon", wS && UR_WX[wS.state] ? UR_WX[wS.state] : "mdi:thermometer");
+      r.getElementById("pv").textContent = w === null ? "—" : w >= 1000 ? (w / 1000).toLocaleString("da-DK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " kW" : Math.round(w) + " W";
+      var lim = +c.limit || 11000; r.getElementById("pd").className = "ur-dot" + (w !== null && w > lim * .7 ? " hi" : w !== null && w > lim * .35 ? " mid" : "");
+    }
+    connectedCallback() { this._tick(); }
+    disconnectedCallback() { clearTimeout(this._t); }
+    getCardSize() { return 3; }
+    static getStubConfig() { return { temperature: "", weather: "", power: "" }; }
+  }
+  if (!customElements.get("nordlys-ur-card")) customElements.define("nordlys-ur-card", NordlysUrCard);
+  window.customCards.push({ type: "nordlys-ur-card", name: "Nordlys ur", description: "Let ur med udetemperatur og forbrug til vægskærme." });
   console.info("%c NORDLYS %c kort indlæst ", "background:#7C5CFF;color:#fff;border-radius:4px 0 0 4px;padding:2px 6px", "background:#1b1740;color:#fff;border-radius:0 4px 4px 0;padding:2px 6px");
 })();

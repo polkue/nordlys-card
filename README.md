@@ -115,6 +115,19 @@ waste:
   - { e: sensor.affalddk_min_adresse_haveaffald, n: Haveaffald }   # n: eget navn
 ```
 
+### Ur til vægskærm
+
+`custom:nordlys-ur-card` er et lille, selvstændigt kort med kun dato, hilsen, ur, udetemperatur og forbrug. Det er lavet til svage vægskærme som Shelly Wall Display: ingen animationer, ingen sløring og ingen baggrundsbilleder. Teksten skalerer efter kortets bredde.
+
+```yaml
+type: custom:nordlys-ur-card
+temperature: sensor.udendors_temperatur   # valgfri: ellers bruges temperaturen fra weather
+weather: weather.forecast_hjem            # valgfri: vejrikon i Ude-chippen
+power: sensor.effekt_hus                  # valgfri: Forbrug-chippen
+limit: 11000                              # valgfri: W; prikken bliver gul over 35 % og rød over 70 %
+hide: [dato, hilsen]                      # valgfri: skjul dato, hilsen, ude eller forbrug
+```
+
 ### Knapstil
 
 `buttons: kompakt` låser lysknapperne til den kompakte stil med ikoner, og `buttons: billeder` låser dem til billeder. Uden indstillingen gælder det valg, der er gemt i den enkelte browser under "Stil".
