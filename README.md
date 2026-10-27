@@ -42,6 +42,9 @@ entities:
     evToday: sensor.elbil_i_dag           # valgfri: ladet i dag (kWh)
     evStatus: sensor.lader_tilstand       # valgfri: Zaptec-tilstand (disconnected/connected_charging …) som chip
     evPeak: 11000                         # valgfri: fuldt udslag på elbilmåleren i W (standard 11000)
+    evEnergy: sensor.lader_energi         # valgfri: laderens samlede kWh-tæller — bruges af kpiEv (ellers evToday)
+    kpiEv: true                           # valgfri: viser elbilens kWh og andel af forbruget i felterne I dag … I år
+    chartEv: true                         # valgfri: tegner laderens effekt (ev) som lilla kurve i Udvikling
     energyTotal: sensor.energi_total
     price: input_number.elpris              # fast pris (kan rettes i kortet) — eller en sensor med live timepris, fx sensor.elpris fra Energi Data Service
     costTotal: sensor.elomkostning_total    # valgfri: samlet kr-tæller (kr); giver rigtige kr. pr. dag/måned/år ud fra timepriser
