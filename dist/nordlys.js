@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.16";
+window.NORDLYS_VERSION = "2.17";
 
 
 /* ---- disegno.js ---- */
@@ -1360,10 +1360,12 @@ window.NORDLYS_VERSION = "2.16";
     var drawerOpen = false;
     var clockLive = true, hour = 21, artFront = $("#art-a"), artBack = $("#art-b"), artKey = "", artTok = 0;
     var userName = "Alex", NONAME = (Array.isArray(CFG.hide) ? CFG.hide : []).some(function (x) { x = String(x).toLowerCase(); return x === "navn" || x === "name"; }), NOWIN = (Array.isArray(CFG.hide) ? CFG.hide : []).some(function (x) { x = String(x).toLowerCase(); return x === "vinduer" || x === "windows"; }); /* Nordlys: hide: vinduer = ingen lys i husets vinduer */
+    var NOART = (Array.isArray(CFG.hide) ? CFG.hide : []).some(function (x) { x = String(x).toLowerCase(); return x === "landskab" || x === "landscape" || x === "hus-billede"; }); /* Nordlys: hide: landskab = ingen hus/landskab i toppen, kun ur og chips */
 
     function snap(h) { var q = clockLive ? 4 : 2; return Math.round(h * q) / q; }
     function setArt(force) {
       var h = snap(hour), key = S.world + "|" + h;
+      if (NOART) return;
       if (key === artKey && !force) return;
       artKey = key;
       var tok = ++artTok, back = artBack;
@@ -2334,6 +2336,7 @@ window.NORDLYS_VERSION = "2.16";
     "i.mdi ha-icon { --mdc-icon-size: 1em; display: flex; width: 1em; height: 1em; }",
     ".scroll { scrollbar-width: thin; }",
     /* Nordlys: ens højde på kompakte lysknapper, også når et navn fylder to linjer */
+    ":host([data-noart]) .hero-art, :host([data-noart]) #fx-hero, :host([data-noart]) .hero-tag { display: none !important; } :host([data-noart]) .hero { min-height: 0 !important; } :host([data-noart]) .hero-body { padding: 16px 20px 18px !important; }",
     ":host([data-btn=\"compact\"]) .o-name { line-height: 1.25; } :host([data-btn=\"compact\"]) .o-txt { justify-content: flex-end; min-height: calc(2.375rem + 1.1rem); }"
   ].join("\n");
 
@@ -2354,7 +2357,11 @@ window.NORDLYS_VERSION = "2.16";
       var style = document.createElement("style"); style.textContent = CSS + "\n" + OVERRIDES + (stat ? STATIC_CSS : "");
       if (stat) this.setAttribute("data-static", "");
       /* Nordlys: scale: 0.8 gør hele kortet mindre (fx til en lille vægskærm); højden rettes, så kortet stadig fylder skærmen */
-      var sc = +this._config.scale; if (sc > 0 && sc !== 1) { this.style.zoom = sc; this.setAttribute("data-scaled", ""); this.style.height = "calc((100vh - var(--header-height, 56px)) / " + sc + ")"; }
+      var hdA = Array.isArray(this._config.hide) ? this._config.hide.map(function (x) { return String(x).toLowerCase(); }) : [];
+      if (hdA.indexOf("landskab") > -1 || hdA.indexOf("landscape") > -1 || hdA.indexOf("hus-billede") > -1) this.setAttribute("data-noart", "");
+      /* Nordlys: fit: true skalerer kortet automatisk, så forsiden (Hus) passer i skærmens højde */
+      if (this._config.fit === true || this._config.scale === "auto") { this.setAttribute("data-scaled", ""); this._fitOn = true; }
+      var sc = +this._config.scale; if (!this._fitOn && sc > 0 && sc !== 1) { this.style.zoom = sc; this.setAttribute("data-scaled", ""); this.style.height = "calc((100vh - var(--header-height, 56px)) / " + sc + ")"; }
       var wrap = document.createElement("div"); wrap.innerHTML = HTML;
       this._root.appendChild(style);
       while (wrap.firstChild) this._root.appendChild(wrap.firstChild);
@@ -2386,12 +2393,32 @@ window.NORDLYS_VERSION = "2.16";
       });
       if (this._hass) this._app.setHass(this._hass);
     }
-    set hass(h) { this._hass = h; if (this._app) this._app.setHass(h); }
+    set hass(h) { this._hass = h; if (this._app) this._app.setHass(h); if (this._fitOn && !this._fitInit) this._fitStart(); }
     get hass() { return this._hass; }
+    _fitStart() {
+      this._fitInit = true; var self = this, R = this._root, tmr = null;
+      var run = function () { clearTimeout(tmr); tmr = setTimeout(function () { self._fitNow(); }, 120); };
+      this._fitRun = run;
+      if (window.ResizeObserver) { this._fro = new ResizeObserver(run); var mn = R.querySelector("#view-home"); if (mn) this._fro.observe(mn); }
+      window.addEventListener("resize", run);
+      [300, 1200, 3000].forEach(function (t) { setTimeout(run, t); });
+    }
+    _fitNow() {
+      var R = this._root, sc = R.querySelector("#scroll"), home = R.querySelector("#view-home");
+      if (!sc || !home || home.offsetParent === null || !this.isConnected) return;
+      var top = Math.max(0, this.getBoundingClientRect().top), A = (window.innerHeight || 800) - top, z = this._z || 1;
+      for (var k = 0; k < 4; k++) {
+        this.style.zoom = z; this.style.height = (A / z) + "px";
+        var mw = R.querySelector("#main"), wr = mw && mw.parentElement, need = wr ? wr.offsetTop + wr.offsetHeight : sc.scrollHeight;
+        var nz = Math.max(.4, Math.min(1, z * Math.min(1.25, (A / z) / need) * .995));
+        if (Math.abs(nz - z) < .01) { z = Math.min(z, nz); break; } z = nz;
+      }
+      this.style.zoom = z; this.style.height = (A / z) + "px"; this._z = z;
+    }
     getCardSize() { return 20; }
     getLayoutOptions() { return { grid_columns: 12, grid_rows: 12 }; }
     connectedCallback() { if (this._app) this._app.start(); }
-    disconnectedCallback() { if (this._app) this._app.stop(); }
+    disconnectedCallback() { if (this._app) this._app.stop(); if (this._fitRun) window.removeEventListener("resize", this._fitRun); if (this._fro) this._fro.disconnect(); this._fitInit = false; }
     static getStubConfig() { return {}; }
   }
   console.info("%c NORDLYS %c " + window.NORDLYS_VERSION + " ", "background:#7C5CFF;color:#fff;font-weight:700", "background:#FBBF24;color:#141838;font-weight:700");

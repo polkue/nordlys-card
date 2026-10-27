@@ -123,6 +123,17 @@ waste:
 scale: 0.55   # Shelly Wall Display X2i på højkant (720×1440) — alt på én skærm
 ```
 
+### Tilpas til skærmens højde
+
+`fit: true` skalerer hele kortet automatisk, så forsiden (Hus) passer i skærmens højde uden at scrolle. Skalaen regnes ud igen, når skærmen eller indholdet ændrer sig. Energifanen kan stadig scrolles. `fit` erstatter `scale`.
+
+`hide: [landskab]` fjerner huset og landskabet i toppen, så der kun er dato, hilsen, ur og chips tilbage. Det sparer højde og CPU, fordi landskabsbillederne slet ikke tegnes.
+
+```yaml
+fit: true
+hide: [landskab]
+```
+
 ### Vægskærm
 
 `custom:nordlys-ur-card` er et let, selvstændigt kort til svage vægskærme som Shelly Wall Display på højkant. Det viser dato, hilsen, ur, udetemperatur, forbrug, lys pr. rum og affald. Der er ingen animationer, ingen sløring og ingen baggrundsbilleder. Teksten skalerer efter kortets bredde.
