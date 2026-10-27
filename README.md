@@ -167,6 +167,14 @@ wasteTab: true
 dock: [hus, energi, affald]
 ```
 
+### Lys som liste
+
+`lightLayout: liste` viser lysknapperne som aflange rækker under hinanden, med ikon, navn og tilstand til venstre og kontakten til højre. Det fylder mindre i højden og passer godt til en smal skærm på højkant.
+
+```yaml
+lightLayout: liste
+```
+
 ### Knapstil
 
 `buttons: kompakt` låser lysknapperne til den kompakte stil med ikoner, og `buttons: billeder` låser dem til billeder. Uden indstillingen gælder det valg, der er gemt i den enkelte browser under "Stil".

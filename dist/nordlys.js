@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.18";
+window.NORDLYS_VERSION = "2.19";
 
 
 /* ---- disegno.js ---- */
@@ -2340,6 +2340,7 @@ window.NORDLYS_VERSION = "2.18";
     "i.mdi ha-icon { --mdc-icon-size: 1em; display: flex; width: 1em; height: 1em; }",
     ".scroll { scrollbar-width: thin; }",
     /* Nordlys: ens højde på kompakte lysknapper, også når et navn fylder to linjer */
+    ":host([data-llist]) .room-body { grid-template-columns: 1fr !important; gap: 6px !important; } :host([data-llist]) .room.w3, :host([data-llist]) .room.w2 { grid-column: auto; } :host([data-llist]) .orb { aspect-ratio: auto !important; min-height: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; gap: 12px; padding: 8px 12px !important; border-radius: 16px; } :host([data-llist]) .orb .o-img, :host([data-llist]) .orb .o-shade, :host([data-llist]) .orb .edit-badge { display: none !important; } :host([data-llist]) .orb .o-ico { display: grid !important; flex: none; width: 38px; height: 38px; border-radius: 13px; font-size: 1.4rem; } :host([data-llist]) .orb .o-txt { position: static !important; min-height: 0 !important; flex: 1; min-width: 0; justify-content: center !important; } :host([data-llist]) .orb .o-name { text-shadow: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } :host([data-llist]) .orb .o-state { color: var(--dim); } :host([data-llist]) .orb[aria-pressed=\"true\"] .o-state { color: color-mix(in srgb, var(--room) 70%, var(--text)); } :host([data-llist]) .orb[aria-pressed=\"true\"] { background: linear-gradient(100deg, color-mix(in srgb, var(--room) 26%, transparent), color-mix(in srgb, var(--room) 6%, transparent)); } :host([data-llist]) .orb[aria-pressed=\"true\"] .o-ico { background: var(--room); color: #fff; } :host([data-llist]) .orb .sw { position: relative !important; top: auto !important; right: auto !important; order: 3; flex: none; } :host([data-llist]) .room { padding: 14px; gap: 10px; }",
     ":host([data-noart]) .hero-art, :host([data-noart]) #fx-hero, :host([data-noart]) .hero-tag { display: none !important; } :host([data-noart]) .hero { min-height: 0 !important; } :host([data-noart]) .hero-body { padding: 16px 20px 18px !important; }",
     ":host([data-btn=\"compact\"]) .o-name { line-height: 1.25; } :host([data-btn=\"compact\"]) .o-txt { justify-content: flex-end; min-height: calc(2.375rem + 1.1rem); }"
   ].join("\n");
@@ -2362,6 +2363,8 @@ window.NORDLYS_VERSION = "2.18";
       if (stat) this.setAttribute("data-static", "");
       /* Nordlys: scale: 0.8 gør hele kortet mindre (fx til en lille vægskærm); højden rettes, så kortet stadig fylder skærmen */
       var hdA = Array.isArray(this._config.hide) ? this._config.hide.map(function (x) { return String(x).toLowerCase(); }) : [];
+      /* Nordlys: lightLayout: liste = lysknapperne som aflange rækker under hinanden (ikon, navn, kontakt) */
+      if (String(this._config.lightLayout || "").toLowerCase() === "liste" || String(this._config.lightLayout || "").toLowerCase() === "list") this.setAttribute("data-llist", "");
       if (hdA.indexOf("landskab") > -1 || hdA.indexOf("landscape") > -1 || hdA.indexOf("hus-billede") > -1) this.setAttribute("data-noart", "");
       /* Nordlys: fit: true skalerer kortet automatisk, så forsiden (Hus) passer i skærmens højde */
       if (this._config.fit === true || this._config.scale === "auto") { this.setAttribute("data-scaled", ""); this._fitOn = true; }
