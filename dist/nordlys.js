@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.14";
+window.NORDLYS_VERSION = "2.15";
 
 
 /* ---- disegno.js ---- */
@@ -2353,6 +2353,8 @@ window.NORDLYS_VERSION = "2.14";
       var stat = this._config.animations === false; window.__NLY_STATIC = stat;
       var style = document.createElement("style"); style.textContent = CSS + "\n" + OVERRIDES + (stat ? STATIC_CSS : "");
       if (stat) this.setAttribute("data-static", "");
+      /* Nordlys: scale: 0.8 gør hele kortet mindre (fx til en lille vægskærm); højden rettes, så kortet stadig fylder skærmen */
+      var sc = +this._config.scale; if (sc > 0 && sc !== 1) { this.style.zoom = sc; this.style.height = "calc((100vh - var(--header-height, 56px)) / " + sc + ")"; }
       var wrap = document.createElement("div"); wrap.innerHTML = HTML;
       this._root.appendChild(style);
       while (wrap.firstChild) this._root.appendChild(wrap.firstChild);

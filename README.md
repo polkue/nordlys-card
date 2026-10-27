@@ -115,6 +115,14 @@ waste:
   - { e: sensor.affalddk_min_adresse_haveaffald, n: Haveaffald }   # n: eget navn
 ```
 
+### Mindre kort
+
+`scale` gør hele kortet mindre (eller større) med samme design og menuer, fx til en lille vægskærm på højkant. Kortet fylder stadig hele skærmens højde.
+
+```yaml
+scale: 0.65
+```
+
 ### Vægskærm
 
 `custom:nordlys-ur-card` er et let, selvstændigt kort til svage vægskærme som Shelly Wall Display på højkant. Det viser dato, hilsen, ur, udetemperatur, forbrug, lys pr. rum og affald. Der er ingen animationer, ingen sløring og ingen baggrundsbilleder. Teksten skalerer efter kortets bredde.
