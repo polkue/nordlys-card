@@ -67,6 +67,7 @@ entities:
     flowAnimate: true                       # valgfri: prikkerne løber i strømmens retning, også når animations: false
     flowSelf: true                          # valgfri: egetforbrug af solstrømmen i % øverst til venstre i energifordelingen
     flowSufficiency: true                   # valgfri: selvforsyningsgrad i % (solstrøm brugt i huset / husets forbrug) under egetforbrug
+    flowBalance: true                       # valgfri: energibalance (køb og salg i dag) under målerne; målerne rykkes op
     flowPrices: true                        # valgfri: elpris nu og salgspris øverst til højre i energifordelingen; prisbjælken skjules
 labels:
   lights:            # visningsnavn pr. lys-plads
