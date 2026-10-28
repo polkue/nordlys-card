@@ -66,6 +66,7 @@ entities:
     flowExportToday: sensor.net_salg_i_dag    # valgfri: kWh solgt i dag til energifordelingen (ellers fra gridExport-statistikken)
     flowAnimate: true                       # valgfri: prikkerne løber i strømmens retning, også når animations: false
     flowSelf: true                          # valgfri: egetforbrug af solstrømmen i % øverst til venstre i energifordelingen
+    flowSufficiency: true                   # valgfri: selvforsyningsgrad i % (solstrøm brugt i huset / husets forbrug) under egetforbrug
     flowPrices: true                        # valgfri: elpris nu og salgspris øverst til højre i energifordelingen; prisbjælken skjules
 labels:
   lights:            # visningsnavn pr. lys-plads
