@@ -61,6 +61,9 @@ entities:
     kpiNet: true                            # valgfri: nederst i felterne "Resultat ±X kr." = solgt for − købt for
     sellPositive: true                      # valgfri: salg vises med + og køb med − (Køb/Salg-måleren, Udvikling, tooltip og kr. brugt i felterne, der vises med rødt minus)
     signalColors: true                      # valgfri: tallet på solcellemåleren bliver grønt, når der produceres; tallet ved Køb er rødt og ved Salg grønt
+    heroFlow: true                          # valgfri: erstatter teksten og chipsene ved målerne med en energifordeling for i dag (sol, elnet, hjem)
+    flowImportToday: sensor.net_kob_i_dag     # valgfri: kWh købt i dag til energifordelingen (ellers fra gridImport-statistikken)
+    flowExportToday: sensor.net_salg_i_dag    # valgfri: kWh solgt i dag til energifordelingen (ellers fra gridExport-statistikken)
 labels:
   lights:            # visningsnavn pr. lys-plads
     salotto: Stue
