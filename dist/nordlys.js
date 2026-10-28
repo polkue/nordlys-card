@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.29";
+window.NORDLYS_VERSION = "2.30";
 
 
 /* ---- disegno.js ---- */
@@ -1971,7 +1971,7 @@ window.NORDLYS_VERSION = "2.29";
       if (!on) return;
       var E = ENT.energy, td = new Date().toDateString(), XD = EN.xdays || {};
       var pick = function (id, k) { var v = enNum(id); if (v === null && XD[k]) { var z = XD[k][td]; v = z === undefined ? null : z; } return v; };
-      var sol = enNum(E.solarToday), imp = pick(E.flowImportToday, "buy"), exp = pick(E.flowExportToday, "sell"), home = m.today;
+      var sol = enNum(E.solarToday), imp = pick(E.flowImportToday, "buy"), exp = pick(E.flowExportToday, "sell"), home = (sol !== null && imp !== null && exp !== null) ? Math.max(0, sol + imp - exp) : m.today; /* hjem = sol + køb − salg, så de fire tal altid går op */
       if (!fl.dataset.built) {
         fl.dataset.built = "1";
         fl.innerHTML = '<div class="fl-box"><svg viewBox="0 0 400 230" aria-hidden="true">'
