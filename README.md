@@ -64,6 +64,9 @@ entities:
     heroFlow: true                          # valgfri: erstatter teksten og chipsene ved målerne med en energifordeling for i dag (sol, elnet, hjem)
     flowImportToday: sensor.net_kob_i_dag     # valgfri: kWh købt i dag til energifordelingen (ellers fra gridImport-statistikken)
     flowExportToday: sensor.net_salg_i_dag    # valgfri: kWh solgt i dag til energifordelingen (ellers fra gridExport-statistikken)
+    flowAnimate: true                       # valgfri: prikkerne løber i strømmens retning, også når animations: false
+    flowSelf: true                          # valgfri: egetforbrug af solstrømmen i % øverst til venstre i energifordelingen
+    flowPrices: true                        # valgfri: elpris nu og salgspris øverst til højre i energifordelingen; prisbjælken skjules
 labels:
   lights:            # visningsnavn pr. lys-plads
     salotto: Stue
