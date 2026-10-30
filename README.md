@@ -52,7 +52,7 @@ entities:
     price: input_number.elpris              # fast pris (kan rettes i kortet) — eller en sensor med live timepris, fx sensor.elpris fra Energi Data Service
     costTotal: sensor.elomkostning_total    # valgfri: samlet kr-tæller (kr); giver rigtige kr. pr. dag/måned/år ud fra timepriser
     priceChart: true                        # valgfri: søjlegraf med elprisen time for time de næste 24 timer under toppen af Energi. Læser raw_today/raw_tomorrow (Energi Data Service, Nord Pool) eller today/tomorrow fra price-sensoren; kan også være et andet entity_id
-    priceChartSale: true                    # valgfri: salgsprisen som tal nederst i hver prissøjle (købsprisen står øverst) (fra salePrice med raw_today/raw_tomorrow); kan også være et andet entity_id
+    priceChartSale: true                    # valgfri: salgsprisen som lilla del nederst i hver prissøjle, der glider over i prisfarven (købsprisen står øverst) (fra salePrice med raw_today/raw_tomorrow); kan også være et andet entity_id
     salePrice: sensor.salgspris             # valgfri: salgspris nu (kr/kWh) — viser "Tjener nu" ved salg og salgsprisen i prisbjælken
     revenueTotal: sensor.salgsindtaegt_total  # valgfri: samlet kr-tæller for salg; giver "+X kr. solgt" og kr. på salgssøjlerne
     daySeries: [køb, salg]                  # valgfri: hvilke søjler "pr. dag" viser — forbrug, sol, køb, salg (uden nøglen vises alle)
