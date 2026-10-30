@@ -186,6 +186,15 @@ statsTab: true
 dock: [hus, energi, statistik]
 ```
 
+### Økonomi i egen fane
+
+`kpiTab: true` flytter felterne I dag, I går, Denne måned, Sidste måned og I år fra Energi til sin egen fane, Økonomi, i bundmenuen. I Energi står fem tomme felter tilbage som pladsholdere. Tilføj `økonomi` til `dock`, hvis du bruger `dock`.
+
+```yaml
+kpiTab: true
+dock: [hus, energi, statistik, økonomi]
+```
+
 ### Lys som liste
 
 `lightLayout: liste` viser lysknapperne som aflange rækker under hinanden, med ikon, navn og tilstand til venstre og kontakten til højre. Det fylder mindre i højden og passer godt til en smal skærm på højkant.
