@@ -177,6 +177,15 @@ wasteTab: true
 dock: [hus, energi, affald]
 ```
 
+### Statistik i egen fane
+
+`statsTab: true` flytter Udvikling og "pr. dag" fra Energi til sin egen fane, Statistik, i bundmenuen. Tilføj `statistik` til `dock`, hvis du bruger `dock`.
+
+```yaml
+statsTab: true
+dock: [hus, energi, statistik]
+```
+
 ### Lys som liste
 
 `lightLayout: liste` viser lysknapperne som aflange rækker under hinanden, med ikon, navn og tilstand til venstre og kontakten til højre. Det fylder mindre i højden og passer godt til en smal skærm på højkant.
