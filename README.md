@@ -70,6 +70,7 @@ entities:
     flowSufficiency: true                   # valgfri: selvforsyningsgrad i % (solstrøm brugt i huset / husets forbrug) under egetforbrug
     flowBalance: true                       # valgfri: energibalance (køb og salg i dag) under målerne; målerne rykkes op
     flowPrices: true                        # valgfri: elpris nu og salgspris øverst til højre i energifordelingen; prisbjælken skjules
+    kpiWeek: true                           # valgfri: felterne på Energi viser i dag, i går, denne uge, sidste uge og denne måned med kWh, kr., solceller, solgt, resultat, egetforbrug og selvforsyning i % (kræver gridExport til %; med kpiTab står de i stedet for de tomme felter)
     heroScene: true                         # valgfri: landskab bag målerne med himmel, sol/måne efter tiden, elmast og hus med solcellepanel; panelet glimter, når der produceres
     sceneLat: 56                            # valgfri: breddegrad til solop- og nedgang i heroScene (standard 56)
     sceneLon: 10                            # valgfri: længdegrad til heroScene (standard 10)
