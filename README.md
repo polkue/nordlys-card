@@ -213,6 +213,8 @@ dock: [hus, energi, statistik, økonomi]
 
 Tallene hentes fra Home Assistants statistik (ændring pr. døgn) for `energy.solarEnergy` (eller `solarToday`), `gridImport`, `gridExport`, `energyTotal`, `costTotal` og `revenueTotal`. Felter for sensorer, der ikke er sat, udelades. Hver dag kontrolleres: afviger købt + produktion − solgt mere end 0,1 kWh fra husets forbrug, står det i tabellen.
 
+Med `energy.reportEv: true` kommer elbilen med i rapporten: kWh ladet, andel af husets forbrug, hvad opladningen kostede (fra `evCost`, ellers et skøn ud fra den gennemsnitlige købspris), en lilla søjle pr. dag, "Mest ladet" og en kolonne i tabellen. Den bruger `evEnergy` (eller `evToday`).
+
 Med `start` udelades målinger før en bestemt dato, fx en opsætningsdag. Tilføj `rapport` til `dock`, hvis du bruger `dock`.
 
 ```yaml
