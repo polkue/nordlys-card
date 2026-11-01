@@ -220,6 +220,15 @@ reportTab:
 dock: [hus, energi, statistik, økonomi, rapport]
 ```
 
+### Kiosk og topbjælke
+
+`kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
+
+```yaml
+kiosk: true
+hide: [topbjælke]
+```
+
 ### Lys som liste
 
 `lightLayout: liste` viser lysknapperne som aflange rækker under hinanden, med ikon, navn og tilstand til venstre og kontakten til højre. Det fylder mindre i højden og passer godt til en smal skærm på højkant.
