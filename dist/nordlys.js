@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.51";
+window.NORDLYS_VERSION = "2.52";
 
 
 /* ---- disegno.js ---- */
@@ -2549,7 +2549,10 @@ window.NORDLYS_VERSION = "2.51";
       if (!gb) { gb = el("div", "kg"); gb.id = "en-kgrid"; kb.parentNode.insertBefore(gb, kb.nextSibling); }
       var K = EN.kg, ids = kgIds(), now = new Date(), td = now.toDateString(), d0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       var TOD = { h: m.today, c: m.cToday, r: EN.rev ? EN.rev.today : undefined, s: enNum(ENT.energy.solarToday), e: enNum(ENT.energy.evToday) };
-      var dv = function (k, ds) { if (ds === td && TOD[k] !== null && TOD[k] !== undefined) return TOD[k]; return K && K.day[k] ? K.day[k][ds] : undefined; };
+      var dv = function (k, ds) { if (ds === td && TOD[k] !== null && TOD[k] !== undefined) return TOD[k];
+        /* elbilens kr. = laderens kr-tæller (evCost) + timerne før tælleren fandtes: timens kWh × timens pris */
+        if (k === "ek") { var c0 = K && K.day.ek ? K.day.ek[ds] : undefined, b0 = EN.evbf ? EN.evbf.days[ds] : undefined; return c0 === undefined && b0 === undefined ? undefined : (c0 || 0) + (b0 || 0); }
+        return K && K.day[k] ? K.day[k][ds] : undefined; };
       var sumD = function (a, b) { var o = {}; ["h", "c", "r", "s", "e", "ek", "b"].forEach(function (k) { var t = null; for (var d = new Date(a); d <= b; d.setDate(d.getDate() + 1)) { var v = dv(k, d.toDateString()); if (v !== undefined && v !== null) t = (t || 0) + v; } o[k] = t; }); return o; };
       var mon = function (y, mo) { var o = {}; ["h", "c", "r", "s", "e", "ek", "b"].forEach(function (k) { var v = K && K.mon[k] ? K.mon[k][y + "-" + mo] : undefined; o[k] = v === undefined ? null : v; }); return o; };
       var WD = ["søn", "man", "tir", "ons", "tor", "fre", "lør"], MN = ["januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"];
@@ -2559,7 +2562,7 @@ window.NORDLYS_VERSION = "2.51";
       for (var w = 0; w < 7; w++) { var a = new Date(mon0); a.setDate(mon0.getDate() - 7 * w); var b = new Date(a); b.setDate(a.getDate() + 6); if (b > d0) b = new Date(d0); weeks.push({ l: (w === 0 ? "Denne uge" : "Uge " + kgIsoWeek(a)), sub: a.getDate() + "/" + (a.getMonth() + 1) + "–" + b.getDate() + "/" + (b.getMonth() + 1), o: sumD(a, b), now: w === 0 }); }
       for (var j = 0; j < 12; j++) { var md = new Date(now.getFullYear(), now.getMonth() - j, 1), o2;
         if (j === 0) { var me = new Date(d0); o2 = sumD(md, me); var mm = mon(md.getFullYear(), md.getMonth()); ["h", "c", "r", "s", "e", "ek", "b"].forEach(function (k) { if (o2[k] === null) o2[k] = mm[k]; }); if (m.month !== null && m.month !== undefined) o2.h = m.month; if (m.cMonth !== null && m.cMonth !== undefined) o2.c = m.cMonth; }
-        else o2 = mon(md.getFullYear(), md.getMonth());
+        else { o2 = mon(md.getFullYear(), md.getMonth()); if (j === 1 && EN.evbf && EN.evbf.lmonth) o2.ek = (o2.ek || 0) + EN.evbf.lmonth; }
         months.push({ l: j === 0 ? "Denne måned" : MN[md.getMonth()] + (md.getFullYear() !== now.getFullYear() ? " " + md.getFullYear() : ""), o: o2, now: j === 0 }); }
       var hasEv = !!ids.e, hasSol = !!ids.s, f2 = function (v) { return Number(v).toLocaleString("da-DK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
       var box = function (x) { var o = x.o, sp = SPOS(), na = o.h === null && o.c === null && o.s === null;
@@ -2606,7 +2609,7 @@ window.NORDLYS_VERSION = "2.51";
       EN.xdays = {};
       /* Nordlys: elbillens kr. = energy.evCost (kr-tæller) + timer før tælleren fandtes: timens kWh (evEnergy) × timens pris (price) */
       var evE = ENT.energy.evEnergy || ENT.energy.evToday, evC = ENT.energy.evCost, prI = ENT.energy.price;
-      if (evE && prI && (ENT.energy.kpiEv || ENT.energy.dayEv) && /^sensor\./.test(prI)) {
+      if (evE && prI && (ENT.energy.kpiEv || ENT.energy.dayEv || ENT.energy.kpiGrid) && /^sensor\./.test(prI)) {
         /* med evCost hentes timer kun frem til dagen efter tællerens første dag; uden evCost højst 62 dage tilbage */
         var bst = evC ? ms : new Date(Math.max(ms.getTime(), now0 - 62 * 864e5));
         (evC ? HASS.callWS({ type: "recorder/statistics_during_period", start_time: ms.toISOString(), end_time: now0.toISOString(), statistic_ids: [evC], period: "day", types: ["change"] }).then(function (r) { var f = (r[evC] || [])[0]; return f ? Math.min(now0.getTime(), tms(f.start) + 2 * 864e5) : now0.getTime(); }) : Promise.resolve(now0.getTime())).then(function (bend) {

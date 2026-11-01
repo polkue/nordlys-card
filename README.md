@@ -74,7 +74,7 @@ entities:
     flowBalance: true                       # valgfri: energibalance (køb og salg i dag) under målerne; målerne rykkes op
     flowPrices: true                        # valgfri: elpris nu og salgspris øverst til højre i energifordelingen; prisbjælken skjules
     kpiWeek: true                           # valgfri: felterne på Energi viser i dag, i går, denne uge, sidste uge og denne måned med kWh, kr., solceller, solgt, resultat, egetforbrug og selvforsyning i % (kræver gridExport til %; med kpiTab står de i stedet for de tomme felter)
-    kpiGrid: true                           # valgfri: i stedet for I dag … I år vises de sidste 7 dage, 7 uger og 12 måneder (2 rækker à 6) med kWh, kr., elbil, solceller, solgt og resultat; på mobil kan rækkerne swipes
+    kpiGrid: true                           # valgfri: i stedet for I dag … I år vises de sidste 7 dage, 7 uger og 12 måneder (2 rækker à 6) med kWh, kr., elbil, solceller, solgt og resultat; elbilens kr. kommer fra evCost (og timens kWh × timens pris før tælleren fandtes), ellers et skøn; på mobil kan rækkerne swipes
     heroScene: true                         # valgfri: landskab bag målerne med himmel, sol/måne efter tiden, elmast og hus med solcellepanel; panelet glimter, når der produceres
     sceneLat: 56                            # valgfri: breddegrad til solop- og nedgang i heroScene (standard 56)
     sceneLon: 10                            # valgfri: længdegrad til heroScene (standard 10)
