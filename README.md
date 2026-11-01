@@ -48,6 +48,7 @@ entities:
     kpiLayout: liste                      # valgfri: felterne I dag … I år som aflange rækker under hinanden (samme form som lightLayout: liste)
     chartEv: true                         # valgfri: tegner laderens effekt (ev) som lilla kurve i Udvikling
     chartAxis: true                       # valgfri: effekten (W/kW) står ud for de vandrette linjer i venstre side af Udvikling
+    chartFit: true                        # valgfri: Udvikling zoomer ind, så kurverne fylder hele højden
     evCost: sensor.elbil_omkostning_total # valgfri: kr-tæller for ladning (ladeeffekt × timepris, integreret) — giver elbilens kr. i felterne og pr. dag. Timer før tælleren fandtes regnes som timens kWh × timens pris (kræver at price er en sensor)
     dayEv: true                           # valgfri: elbilens kWh (og kr.) som egen lilla søjle i "Forbrug pr. dag"; kan også vælges med daySeries: [..., elbil]
     energyTotal: sensor.energi_total
@@ -62,6 +63,7 @@ entities:
     dayStack: true                          # valgfri: søjlerne pr. dag lægges oven på hinanden i én søjle, hvor farverne glider over i hinanden
     dayLabel: dato                          # valgfri: skriv 25/10 under søjlerne i stedet for ugedag + dato
     dayNet: true                            # valgfri: resultatet (salg − køb) under hver søjle; i kr. = solgt for − købt for
+    dayVertical: true                       # valgfri: tallet står lodret over hver søjle i "pr. dag" (ikke med dayStack)
     kpiSolar: true                          # valgfri: deler felterne I dag … I år i to, nederste del viser solcelleproduktionen (og "+X kr. solgt")
     kpiNet: true                            # valgfri: nederst i felterne "Resultat ±X kr." = solgt for − købt for
     sellPositive: true                      # valgfri: salg vises med + og køb med − (Køb/Salg-måleren, Udvikling, tooltip og kr. brugt i felterne, der vises med rødt minus)
