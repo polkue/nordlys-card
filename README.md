@@ -194,7 +194,7 @@ dock: [hus, energi, statistik]
 
 ### Økonomi i egen fane
 
-`kpiTab: true` flytter felterne I dag, I går, Denne måned, Sidste måned og I år fra Energi til sin egen fane, Økonomi, i bundmenuen. I Energi står fem tomme felter tilbage som pladsholdere. Tilføj `økonomi` til `dock`, hvis du bruger `dock`.
+`kpiTab: true` flytter felterne I dag, I går, Denne måned, Sidste måned og I år fra Energi til sin egen fane, Økonomi, i bundmenuen. Med `energy.kpiWeek` står ugefelterne på deres plads i Energi; ellers er pladsen tom. Tilføj `økonomi` til `dock`, hvis du bruger `dock`.
 
 ```yaml
 kpiTab: true

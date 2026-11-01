@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.44";
+window.NORDLYS_VERSION = "2.45";
 
 
 /* ---- disegno.js ---- */
@@ -1487,10 +1487,10 @@ window.NORDLYS_VERSION = "2.44";
       if (vst) { if (ech) vst.appendChild(ech); if (eds) vst.appendChild(eds); }
       var sdk = Array.isArray(CFG.dock) ? CFG.dock.map(function (x) { return String(x).toLowerCase(); }) : null, sbt = $('.dock [data-view="stat"]');
       if (sbt && (!sdk || sdk.indexOf("statistik") > -1 || sdk.indexOf("stats") > -1 || sdk.indexOf("stat") > -1)) sbt.hidden = false; }
-    /* Nordlys: kpiTab: true flytter felterne I dag … I år til sin egen fane, Økonomi; i Energi står 5 tomme felter tilbage */
+    /* Nordlys: kpiTab: true flytter felterne I dag … I år til sin egen fane, Økonomi; med energy.kpiWeek står ugefelterne på deres plads i Energi */
     if (CFG.kpiTab) { VIEWS.kpi = "#view-kpi"; var vkp = $("#view-kpi"), ekp = $("#en-kpis");
-      if (vkp && ekp) { var ph = document.createElement("div"); ph.className = "kpis kpi-ph-row"; ph.id = "en-kpi-ph"; ph.style.setProperty("--i", "1");
-        ph.innerHTML = '<article class="card kpi kpi-ph"></article>'.repeat(5); ekp.parentNode.insertBefore(ph, ekp); vkp.appendChild(ekp); }
+      if (vkp && ekp && ENT.energy && ENT.energy.kpiWeek) { var ph = document.createElement("div"); ph.className = "kpis kpi-ph-row"; ph.id = "en-kpi-ph"; ph.style.setProperty("--i", "1");
+        ph.innerHTML = '<article class="card kpi kpi-ph"></article>'.repeat(5); ekp.parentNode.insertBefore(ph, ekp); } if (vkp && ekp) vkp.appendChild(ekp);
       var kdk = Array.isArray(CFG.dock) ? CFG.dock.map(function (x) { return String(x).toLowerCase(); }) : null, kbt = $('.dock [data-view="kpi"]');
       if (kbt && (!kdk || kdk.indexOf("økonomi") > -1 || kdk.indexOf("oekonomi") > -1 || kdk.indexOf("kpi") > -1)) kbt.hidden = false; }
     /* Nordlys: reportTab giver fanen Rapport i bundmenuen (dock: rapport) */
