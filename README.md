@@ -53,6 +53,7 @@ entities:
     energyTotal: sensor.energi_total
     price: input_number.elpris              # fast pris (kan rettes i kortet) — eller en sensor med live timepris, fx sensor.elpris fra Energi Data Service
     costTotal: sensor.elomkostning_total    # valgfri: samlet kr-tæller (kr); giver rigtige kr. pr. dag/måned/år ud fra timepriser
+    heroPrice: true                         # valgfri: elprisen nu øverst til højre i den øverste boks på Energi; prisbjælken skjules
     priceChart: true                        # valgfri: søjlegraf med elprisen time for time de næste 24 timer under toppen af Energi. Læser raw_today/raw_tomorrow (Energi Data Service, Nord Pool) eller today/tomorrow fra price-sensoren; kan også være et andet entity_id
     priceChartSale: true                    # valgfri: salgsprisen som lilla del nederst i hver prissøjle, der glider over i prisfarven (købsprisen står øverst) (fra salePrice med raw_today/raw_tomorrow); kan også være et andet entity_id
     salePrice: sensor.salgspris             # valgfri: salgspris nu (kr/kWh) — viser "Tjener nu" ved salg og salgsprisen i prisbjælken
@@ -227,7 +228,7 @@ dock: [hus, energi, statistik, økonomi, rapport]
 
 ### Kiosk og topbjælke
 
-`kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
+`kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
 
 ```yaml
 kiosk: true
