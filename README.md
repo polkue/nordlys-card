@@ -230,6 +230,23 @@ reportTab:
 dock: [hus, energi, statistik, økonomi, rapport]
 ```
 
+### Husholdning
+
+`household` giver en ny fane, Husholdning, i bundmenuen. Hvert apparat vises med en tegnet vaskemaskine, der drejer, når den kører, status og resttid, effekt nu samt strøm og vand i dag, denne måned, i år og i alt (ud fra statistikken). Tilføj `husholdning` til `dock`, hvis du bruger `dock`.
+
+```yaml
+household:
+  - name: Vaskemaskine
+    power: sensor.vaskemaskine_effekt          # W
+    energy: sensor.vaskemaskine_energi         # kWh-tæller
+    water: sensor.vaskemaskine_vandforbrug     # valgfri: liter-tæller
+    state: sensor.vaskemaskine_machine_state   # valgfri: run/pause/stop
+    job: sensor.vaskemaskine_job_state         # valgfri: wash/rinse/spin …
+    completion: sensor.vaskemaskine_completion_time  # valgfri: færdigtidspunkt
+    animate: true                              # valgfri: tromlen drejer, også når animations: false
+dock: [hus, energi, husholdning]
+```
+
 ### Kiosk og topbjælke
 
 `kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
