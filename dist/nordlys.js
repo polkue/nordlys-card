@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.46";
+window.NORDLYS_VERSION = "2.47";
 
 
 /* ---- disegno.js ---- */
@@ -2829,9 +2829,9 @@ window.NORDLYS_VERSION = "2.46";
       if (!hui && on) return; /* fx i kort-editoren: rør ikke Home Assistant */
       put(hui, "nordlys-kiosk", ".header, .toolbar, app-header { display: none !important; } #view, hui-view-container { padding-top: 0 !important; margin-top: 0 !important; min-height: 100vh !important; }");
       if (hui) { if (on) hui.style.setProperty("--header-height", "0px"); else hui.style.removeProperty("--header-height"); }
-      put(main, "nordlys-kiosk", ":host { --mdc-drawer-width: 0px !important; } ha-sidebar { display: none !important; }");
+      put(main, "nordlys-kiosk", ":host { --mdc-drawer-width: 0px !important; --ha-sidebar-width: 0px !important; --ha-top-app-bar-width: 100% !important; } ha-sidebar { display: none !important; }");
       var dr = main && main.shadowRoot ? main.shadowRoot.querySelector("ha-drawer") : null;
-      put(dr, "nordlys-kiosk", ".mdc-drawer { display: none !important; } .mdc-drawer-app-content { margin-left: 0 !important; margin-inline-start: 0 !important; }");
+      put(dr, "nordlys-kiosk", ".mdc-drawer, .sidebar-shell { display: none !important; } .mdc-drawer-app-content, .app-content { margin-left: 0 !important; margin-inline-start: 0 !important; padding-inline-start: 0 !important; width: 100% !important; }");
       this._kioskOn = !!on;
       if (!keep) this._kioskIcon(on);
       if (this._fitRun) this._fitRun();
