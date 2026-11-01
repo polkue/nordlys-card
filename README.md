@@ -218,6 +218,8 @@ Tallene hentes fra Home Assistants statistik (ændring pr. døgn) for `energy.so
 
 Med `energy.reportEv: true` kommer elbilen med i rapporten: kWh ladet, andel af husets forbrug, hvad opladningen kostede (fra `evCost`, ellers et skøn ud fra den gennemsnitlige købspris), en lilla søjle pr. dag, "Mest ladet" og en kolonne i tabellen. Den bruger `evEnergy` (eller `evToday`).
 
+`reportValues: true` skriver kWh-tallet lodret over hver søjle i "Dag for dag".
+
 Med `start` udelades målinger før en bestemt dato, fx en opsætningsdag. Tilføj `rapport` til `dock`, hvis du bruger `dock`.
 
 ```yaml
