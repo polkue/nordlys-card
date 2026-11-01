@@ -201,6 +201,25 @@ kpiTab: true
 dock: [hus, energi, statistik, økonomi]
 ```
 
+### Månedsrapport i egen fane
+
+`reportTab: true` giver en ny fane, Rapport, i bundmenuen med en solcellerapport for en hel måned. Den åbner på forrige måned, og med pilene kan du bladre til andre måneder. Rapporten viser:
+
+- energi: produktion, købt, solgt og husets forbrug
+- økonomi: kr. brugt, kr. tjent, resultat og gennemsnitlig købs- og salgspris
+- egetforbrugsandel, selvforsyningsgrad og et skøn over, hvad egetforbruget har sparet
+- sammenligning med måneden før, et søjlediagram dag for dag, højdepunkter, en tabel over alle dage og noter om tallene
+
+Tallene hentes fra Home Assistants statistik (ændring pr. døgn) for `energy.solarEnergy` (eller `solarToday`), `gridImport`, `gridExport`, `energyTotal`, `costTotal` og `revenueTotal`. Felter for sensorer, der ikke er sat, udelades. Hver dag kontrolleres: afviger købt + produktion − solgt mere end 0,1 kWh fra husets forbrug, står det i tabellen.
+
+Med `start` udelades målinger før en bestemt dato, fx en opsætningsdag. Tilføj `rapport` til `dock`, hvis du bruger `dock`.
+
+```yaml
+reportTab:
+  start: "2026-10-26"   # valgfri
+dock: [hus, energi, statistik, økonomi, rapport]
+```
+
 ### Lys som liste
 
 `lightLayout: liste` viser lysknapperne som aflange rækker under hinanden, med ikon, navn og tilstand til venstre og kontakten til højre. Det fylder mindre i højden og passer godt til en smal skærm på højkant.
