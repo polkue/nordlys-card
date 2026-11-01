@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.49";
+window.NORDLYS_VERSION = "2.50";
 
 
 /* ---- disegno.js ---- */
@@ -2060,7 +2060,7 @@ window.NORDLYS_VERSION = "2.49";
           apps: [{ n: "Vaskemaskine", w: 460, e: .42, ic: "mdi-washing-machine", c: "#38BDF8" }, { n: "Tørretumbler", w: 0, e: .01, ic: "mdi-tumble-dryer", c: "#F472B6" }, { n: "Opvaskemaskine", w: 1080, e: .55, ic: "mdi-dishwasher", c: "#22D3EE" }, { n: "Ovn", w: 0, e: 0, ic: "mdi-stove", c: "#FB923C" }, { n: "Stikdåse", w: 12, e: .14, ic: "mdi-power-socket-eu", c: "#A78BFA" }, { n: "Køleskab", w: 74, e: .62, ic: "mdi-fridge", c: "#34D399" }] };
       } else {
         var lim = enNum(E.limit) || E.limitDefault;
-        m = { power: enNum(E.power) !== null ? enNum(E.power) : enNum(ENT.power), volt: enNum(E.voltage), grid: enNum(E.grid), gridUnit: (sv(E.grid) || { attributes: {} }).attributes.unit_of_measurement, solar: enNum(E.solar), solarUnit: (sv(E.solar) || { attributes: {} }).attributes.unit_of_measurement, solarToday: enNum(E.solarToday), ev: enNum(E.ev), evCfg: !!E.ev, evUnit: (sv(E.ev) || { attributes: {} }).attributes.unit_of_measurement, evToday: enNum(E.evToday), evStatus: (sv(E.evStatus) || {}).state, base: enNum(E.base), avg3: enNum(E.avg3), limit: lim,
+        m = { power: enNum(E.power) !== null ? enNum(E.power) : enNum(ENT.power), volt: enNum(E.voltage), grid: enNum(E.grid), gridUnit: (sv(E.grid) || { attributes: {} }).attributes.unit_of_measurement, solar: enNum(E.solar), solarUnit: (sv(E.solar) || { attributes: {} }).attributes.unit_of_measurement, solarToday: enNum(E.solarToday), ev: (function () { var v = enNum(E.ev), mn = +E.evMin || 0; /* Nordlys: energy.evMin = hvilestrøm (W) under hvilken laderen vises som 0 */ if (v !== null && mn > 0 && Math.abs(v) * ((sv(E.ev) || { attributes: {} }).attributes.unit_of_measurement === "kW" ? 1000 : 1) < mn) v = 0; return v; })(), evCfg: !!E.ev, evUnit: (sv(E.ev) || { attributes: {} }).attributes.unit_of_measurement, evToday: enNum(E.evToday), evStatus: (sv(E.evStatus) || {}).state, base: enNum(E.base), avg3: enNum(E.avg3), limit: lim,
           today: enNum(E.today), yest: enNum(E.yesterday), month: enNum(E.month), lmonth: enNum(E.lastMonth), year: enNum(E.year),
           na: isUnavail(sv(E.power)),
           apps: E.appliances.map(function (x) { var s = sv(x.p); return { n: x.n, w: enNum(x.p), e: x.e ? enNum(x.e) : null, ic: x.ic, c: x.c, na: !s || isUnavail(s) }; }) };
@@ -2523,7 +2523,7 @@ window.NORDLYS_VERSION = "2.49";
       /* Nordlys: energy.chartEv: true tegner elbilladerens effekt (energy.ev) som egen kurve i Udvikling */
       var eid = ENT.energy.chartEv ? ENT.energy.ev : null, ek = ((sv(eid) || { attributes: {} }).attributes.unit_of_measurement === "kW") ? 1000 : 1;
       var pe = eid ? enFetch(key, eid).then(function (b) { return b.map(function (z) { return { t: z.t, v: Math.max(0, z.v * ek) }; }); }).catch(function () { return []; }) : Promise.resolve([]);
-      Promise.all([enFetch(key), ps, pg, pe]).then(function (r) { EN.series = r[0]; EN.sol = r[1]; EN.net = r[2]; EN.evs = r[3]; EN.rangeKey = key; EN.last = Date.now(); EN.busy = false; drawChart(); }).catch(function () { EN.busy = false; EN.series = []; EN.sol = []; EN.net = []; EN.evs = []; drawChart(); });
+      Promise.all([enFetch(key), ps, pg, pe]).then(function (r) { EN.series = r[0]; EN.sol = r[1]; EN.net = r[2]; EN.evs = (function () { var mn = +ENT.energy.evMin || 0; return mn > 0 ? (r[3] || []).map(function (d) { return d.v < mn ? { t: d.t, v: 0 } : d; }) : r[3]; })(); EN.rangeKey = key; EN.last = Date.now(); EN.busy = false; drawChart(); }).catch(function () { EN.busy = false; EN.series = []; EN.sol = []; EN.net = []; EN.evs = []; drawChart(); });
     }
     function daysLoad() {
       if (Date.now() - EN.daysAt < 600000 && EN.days.length) return;

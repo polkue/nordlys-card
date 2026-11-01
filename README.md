@@ -42,6 +42,7 @@ entities:
     evToday: sensor.elbil_i_dag           # valgfri: ladet i dag (kWh)
     evStatus: sensor.lader_tilstand       # valgfri: Zaptec-tilstand (disconnected/connected_charging …) som chip
     evPeak: 11000                         # valgfri: fuldt udslag på elbilmåleren i W (standard 11000)
+    evMin: 5                              # valgfri: hvilestrøm i W; under den vises laderen som 0 W (måler og kurve i Udvikling)
     evEnergy: sensor.lader_energi         # valgfri: laderens samlede kWh-tæller — bruges af kpiEv (ellers evToday)
     kpiEv: true                           # valgfri: viser elbilens kWh og andel af forbruget i felterne I dag … I år
     kpiLayout: liste                      # valgfri: felterne I dag … I år som aflange rækker under hinanden (samme form som lightLayout: liste)
