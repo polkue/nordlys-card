@@ -261,6 +261,8 @@ evAdvice:
   weather: weather.forecast_hjem   # valgfri: ellers bruges entities.weather
 ```
 
+`washAdvice: true` viser samme slags chip for vaskemaskinen til højre, fx "Vask kl. 11–13 · ≈ 1,52 kr/kWh". Standard er 2 timer ved 800 W; ret med `washAdvice: { hours: 2, power: 800 }`.
+
 ### Kiosk og topbjælke
 
 `kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
