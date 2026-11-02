@@ -241,6 +241,7 @@ household:
     power: sensor.vaskemaskine_effekt          # W
     energy: sensor.vaskemaskine_energi         # kWh-tæller
     water: sensor.vaskemaskine_vandforbrug     # valgfri: liter-tæller
+    waterUnit: m3                              # valgfri: vis vandet i m³ i stedet for liter
     state: sensor.vaskemaskine_machine_state   # valgfri: run/pause/stop
     job: sensor.vaskemaskine_job_state         # valgfri: wash/rinse/spin …
     completion: sensor.vaskemaskine_completion_time  # valgfri: færdigtidspunkt

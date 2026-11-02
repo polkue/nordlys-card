@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.60";
+window.NORDLYS_VERSION = "2.61";
 
 
 /* ---- disegno.js ---- */
@@ -1530,7 +1530,8 @@ window.NORDLYS_VERSION = "2.60";
         return '<article class="card hh-card' + (run ? " run" : "") + '"><div class="hh-art">' + hhWasher(run) + '</div><div class="hh-info"><h3>' + (a.name || "Vaskemaskine") + '</h3><p class="hh-st"><i class="hh-dot"></i>' + status + (rem ? " · " + rem : "") + "</p>"
           + '<div class="hh-now">' + tile("Effekt nu", w === null ? "—" : Math.round(w), "W", "pw") + "</div>"
           + '<h4>Strøm</h4><div class="hh-row">' + tile("I dag", f(E ? E.today : null, 2), "kWh") + tile("Denne måned", f(E ? E.month : null, 1), "kWh") + tile("I år", f(E ? E.year : null, 1), "kWh") + tile("I alt", f(eT, 1), "kWh") + "</div>"
-          + (a.water ? '<h4>Vand</h4><div class="hh-row wt">' + tile("I dag", f(Wt ? Wt.today : null, 0), "L") + tile("Denne måned", f(Wt ? Wt.month : null, 0), "L") + tile("I år", f(Wt ? Wt.year : null, 0), "L") + tile("I alt", f(wT, 0), "L") + "</div>" : "")
+          + (a.water ? '<h4>Vand</h4><div class="hh-row wt">' + (function () { /* Nordlys: household[].waterUnit: "m3" viser vandet i m³ i stedet for liter */ var M3 = /^m/i.test(String(a.waterUnit || "")), cv = function (v) { return v === null || v === undefined ? null : M3 ? v / 1000 : v; }, u = M3 ? "m³" : "L", dd = M3 ? 2 : 0;
+            return tile("I dag", f(cv(Wt ? Wt.today : null), M3 ? 3 : 0), u) + tile("Denne måned", f(cv(Wt ? Wt.month : null), dd), u) + tile("I år", f(cv(Wt ? Wt.year : null), dd), u) + tile("I alt", f(cv(wT), M3 ? 1 : 0), u); })() + "</div>" : "")
           + "</div></article>";
       }).join("");
       if (box.dataset.sig !== h) { box.dataset.sig = h; box.innerHTML = h; hydrate(box); }
