@@ -250,6 +250,17 @@ dock: [hus, energi, husholdning]
 
 `householdWaste: true` flytter Affald fra forsiden ind i Husholdning under apparaterne.
 
+### Ladetip til elbilen
+
+`evAdvice: true` viser en chip på forsiden med det bedste tidspunkt at lade elbilen de næste 24 timer, fx "Lad elbil kl. 12–15 · ≈ 1,64 kr/kWh ☀". Hver time vurderes ud fra elprisen (`energy.price`), salgsprisen (`energy.salePrice`) og vejrudsigten (`weather`): strøm fra egne solceller regnes til salgsprisen, fordi det er den, man går glip af. Holder man musen over, står andelen fra solcellerne og prisen, hvis man lader nu.
+
+```yaml
+evAdvice:
+  hours: 3        # valgfri: hvor mange timer der skal lades (standard 3)
+  power: 11000    # valgfri: laderens effekt i W (standard energy.evPeak eller 11000)
+  weather: weather.forecast_hjem   # valgfri: ellers bruges entities.weather
+```
+
 ### Kiosk og topbjælke
 
 `kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
