@@ -283,6 +283,20 @@ cameraPopup:
 
 Tryk på krydset eller ved siden af for at lukke. Tryk på billedet for at åbne kameraet. Uden nøglen sker der intet.
 
+### Kameraer i egen fane
+
+`cameraTab` giver fanen Kameraer i bundmenuen (`dock: kameraer`) med alle kameraer live i et gitter, to i bredden og ét på mobil:
+
+```yaml
+cameraTab:
+  cameras:
+    - camera.indkorsel
+    - entity: camera.baghave
+      name: Baghaven
+```
+
+Strømmene startes, når fanen åbnes, og stoppes igen, når man går til en anden fane.
+
 ### Kiosk og topbjælke
 
 `kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
