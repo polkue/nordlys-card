@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.64";
+window.NORDLYS_VERSION = "2.65";
 
 
 /* ---- disegno.js ---- */
@@ -1557,9 +1557,9 @@ window.NORDLYS_VERSION = "2.64";
       if (rbt && (!rdk || rdk.indexOf("rapport") > -1 || rdk.indexOf("rap") > -1)) rbt.hidden = false; }
     /* Nordlys: cameraTab: { cameras: ["camera.x", { entity, name }] } giver fanen Kameraer (dock: kameraer) med alle kameraer live.
        Strømmene startes, når fanen åbnes, og stoppes, når man går til en anden fane. */
-    var CT = { els: [] };
+    var CT = { els: [], tm: [] };
     function ctList() { var c = CFG.cameraTab; var l = Array.isArray(c) ? c : c && Array.isArray(c.cameras) ? c.cameras : []; return l.map(function (x) { return typeof x === "string" ? { entity: x } : x; }).filter(function (x) { return x && x.entity; }); }
-    function ctStop() { CT.els = []; var b = $("#camtab"); if (b && b.firstChild) b.innerHTML = ""; }
+    function ctStop() { (CT.tm || []).forEach(function (x) { clearInterval(x); }); CT.tm = []; CT.els = []; var b = $("#camtab"); if (b && b.firstChild) b.innerHTML = ""; }
     function ctEnter() {
       var box = $("#camtab"); if (!box) return; ctStop(); var list = ctList();
       box.dataset.n = list.length;
@@ -1570,6 +1570,15 @@ window.NORDLYS_VERSION = "2.64";
         var feed = $(".ct-feed", card), im = $("img", card);
         feed.addEventListener("click", function () { moreInfo(c.entity); });
         if (s && s.attributes.entity_picture) im.src = s.attributes.entity_picture;
+        /* Nordlys: mode: mjpeg (MJPEG-strøm i et billede) eller billede (stillbillede hvert interval sek.) - til ældre skærme som Shelly Wall Display, der ikke kan afspille live-strømmen. Kan sættes for hele fanen eller pr. kamera */
+        var md = String(c.mode || (CFG.cameraTab && CFG.cameraTab.mode) || "live").toLowerCase();
+        if (LIVE && (md === "mjpeg" || md === "billede" || md === "snapshot")) {
+          var pic = function () { var s2 = HASS && HASS.states[c.entity]; return s2 && s2.attributes.entity_picture; };
+          if (md === "mjpeg") { var p0 = pic(); if (p0) im.src = p0.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
+          else { var iv = Math.max(0.5, +(c.interval || (CFG.cameraTab && CFG.cameraTab.interval) || 1)), busy = false;
+            CT.tm.push(setInterval(function () { var p1 = pic(); if (!p1 || busy || !card.isConnected) return; busy = true; var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth) im.src = n.src; }; var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0); n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&" : "") + "_t=" + Date.now(); }, iv * 1000)); }
+          return;
+        }
         if (LIVE && window.loadCardHelpers) window.loadCardHelpers().then(function (h) {
           if (!card.isConnected) return;
           try { var e = h.createCardElement({ type: "picture-entity", entity: c.entity, camera_view: "live", show_name: false, show_state: false, tap_action: { action: "none" } }); e.hass = HASS; feed.appendChild(e); CT.els.push(e); im.remove(); } catch (err) {}

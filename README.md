@@ -297,6 +297,17 @@ cameraTab:
 
 Strømmene startes, når fanen åbnes, og stoppes igen, når man går til en anden fane.
 
+Kan skærmen ikke afspille live-strømmen (fx Shelly Wall Display med Android 8), så brug `mode`. `mjpeg` viser kameraet som en MJPEG-strøm i et almindeligt billede. `billede` henter et nyt stillbillede hvert `interval` sekund (standard 1). Begge kan sættes for hele fanen eller pr. kamera.
+
+```yaml
+cameraTab:
+  mode: mjpeg          # live (standard), mjpeg eller billede
+  interval: 1          # kun til billede
+  width: 720           # valgfri, kun til billede: Home Assistant skalerer billedet ned til denne bredde (mindre data til en svag skærm)
+  cameras:
+    - camera.indkorsel
+```
+
 ### Kiosk og topbjælke
 
 `kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
