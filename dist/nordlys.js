@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.61";
+window.NORDLYS_VERSION = "2.62";
 
 
 /* ---- disegno.js ---- */
@@ -2734,6 +2734,19 @@ window.NORDLYS_VERSION = "2.61";
     }
     function evKr(p) { if (!EN.evc && !EN.evbf) return null; var c = EN.evc ? EN.evc[p] : null, b = EN.evbf ? EN.evbf[p] : 0; return (c || 0) + (b || 0); }
     function evKrDay(ds) { var c = EN.evc ? EN.evc.days[ds] : undefined, b = EN.evbf ? EN.evbf.days[ds] : undefined; return c === undefined && b === undefined ? undefined : (c || 0) + (b || 0); }
+    function dayAxis(box, maxV, eur) {
+      $$(".dax-l", box).forEach(function (x) { x.remove(); });
+      var bs = $$(".bar2", box), top = null, hpx = 0, br = box.getBoundingClientRect(), zr = (br.height / (box.offsetHeight || 1)) || 1;
+      bs.forEach(function (b) { var r = b.getBoundingClientRect(); if (r.height > hpx) { hpx = r.height; top = r; } });
+      if (!top || !(maxV > 0) || hpx < 4) return;
+      var base = (top.bottom - br.top) / zr, ppu = (hpx / zr) / maxV, raw = maxV / 4, pw = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), step = pw;
+      [1, 2, 2.5, 5, 10].some(function (m) { step = m * pw; return step >= raw; });
+      var h = "";
+      for (var v = 0; v <= maxV * 1.001; v += step) { var y = base - v * ppu; if (y < 0) break;
+        h += '<span class="dax-l' + (v === 0 ? " z" : "") + '" style="top:' + y.toFixed(1) + 'px"><i>' + (step < 1 ? v.toLocaleString("da-DK", { maximumFractionDigits: 1 }) : Math.round(v).toLocaleString("da-DK")) + "</i></span>"; }
+      h += '<span class="dax-l u" style="top:0px"><i>' + (eur ? "kr." : "kWh") + "</i></span>";
+      box.insertAdjacentHTML("beforeend", h);
+    }
     function drawDays() {
       var box = $("#en-days"), a = EN.days, sum = $("#en-days-sum"); if (!box) return;
       EN.pDrawn = EN.pEff;
@@ -2785,6 +2798,9 @@ window.NORDLYS_VERSION = "2.61";
         var DVV = !!ENT.energy.dayVertical;
         return '<div class="day pair' + (DVV ? " dvert" : "") + (ds === today ? " today" : "") + '" title="' + title + '"><span class="d-v">' + (DVV ? "" : lab) + '</span><span class="bars" style="height:' + (DVV ? wp * .7 : wp) + '%">' + bars.map(function (b) { return '<span class="bar2' + (b[0] ? " " + b[0] : "") + '" style="height:' + (b[1] / wp * 100) + '%">' + (DVV && b[2] !== undefined ? '<b class="dvv">' + fv(b[2]) + "</b>" : "") + "</span>"; }).join("") + '</span>' + dnet(x) + '<span class="d-l">' + dlab(x.d) + "</span></div>";
       }).join("");
+      /* Nordlys: energy.dayAxis: true = skala (kWh eller kr.) i venstre side af "pr. dag" med vandrette hjælpelinjer */
+      box.classList.toggle("dax", !!ENT.energy.dayAxis);
+      if (ENT.energy.dayAxis) { var daxMax = STK ? mxS : mx; requestAnimationFrame(function () { dayAxis(box, daxMax, eur); }); }
       var tkr = 0, hasC = Object.keys(CD).length > 0; a.forEach(function (x) { var c = CD[x.d.toDateString()]; tkr += c !== undefined ? c : x.v * EN.pEff; });
       if (sum) { sum.innerHTML = "<span class=\"echip\"><i class=\"mdi mdi-sigma\"></i>I alt <b>" + fmtKwh(tk) + ' kWh</b> · <b>' + fmtEur(tkr) + "</b></span><span class=\"echip\"><i class=\"mdi mdi-chart-line\"></i>Gennemsnit pr. dag <b>" + fmtKwh(tk / a.length) + ' kWh</b> · <b>' + fmtEur(tkr / a.length) + "</b></span>" + SER.map(function (q) { return "<span class=\"echip " + q[0] + "\"><i class=\"mdi " + q[3] + "\"></i>" + q[2] + " <b>" + fmtKwh(tot[q[0]]) + " kWh</b>" + (q[0] === "ev" ? (function () { var r2 = 0, hv = false; a.forEach(function (x) { var z = evKrDay(x.d.toDateString()); if (z !== undefined) { r2 += z; hv = true; } }); return hv ? " · <b>" + fmtEur(r2) + "</b>" : ""; })() : "") + (q[0] === "sell" && EN.rev ? (function () { var r2 = 0; a.forEach(function (x) { var z = EN.rev.days[x.d.toDateString()]; if (z !== undefined) r2 += z; }); return " · <b>+" + fmtEur(r2) + "</b>"; })() : "") + "</span>"; }).join("") + "<span class=\"echip\"><i class=\"mdi mdi-information-outline\"></i>" + (hasC ? "kr. fra timepriser" + (Object.keys(CD).length < a.length ? " (ældre dage × " + fmtP(EN.pEff) + " kr/kWh)" : "") : "Beregnet med " + fmtP(EN.pEff) + " kr/kWh") + "</span>"; hydrate(sum); }
     }
@@ -2887,6 +2903,7 @@ window.NORDLYS_VERSION = "2.61";
     /* Nordlys: på smalle skærme står energi-toppen i en kolonne; flex-basis 240px blev til 240px højde og gav et tomt felt */
     "@media (max-width: 720px) { .en-hero .en-side, .en-hero.dual .en-side { flex: 0 1 auto; } .en-hero { padding: 16px 18px; gap: 8px; } .en-hero.dual .en-gauge { width: 124px; height: 112px; } .en-hero.dual .g-num { font-size: 1.7rem; } .en-side h3 { font-size: 1.25rem; } .en-chips { margin-top: 6px; } }",
     ".en-pcorner { position: absolute; top: 16px; right: 18px; z-index: 3; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; pointer-events: none; } .en-pcorner span { font-size: .62rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); } .en-pcorner b { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }",
+    ".days.dax { position: relative; padding-left: 34px; } .dax-l { position: absolute; left: 34px; right: 0; height: 0; border-top: 1px dashed color-mix(in srgb, var(--text) 12%, transparent); pointer-events: none; } .dax-l.z { border-top-style: solid; } .dax-l.u { border: 0; } .dax-l i { position: absolute; right: calc(100% + 5px); top: -.5em; font-style: normal; font-size: .62rem; font-weight: 700; color: var(--faint); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; } .dax-l.u i { top: -1.3em; color: var(--dim); }",
     ".pchart { padding: 16px 18px 14px; display: flex; flex-direction: column; gap: 8px; } .pc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; } .pc-head h3 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; } .pc-head h3 i { color: var(--acc-text); } .pc-now { font-size: .8rem; color: var(--dim); font-weight: 600; } .pc-now b { color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; } .pc-bars { display: flex; align-items: flex-end; gap: 3px; height: 110px; } .pc-b { flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; } .pc-b i { display: block; position: relative; width: 100%; border-radius: 4px 4px 2px 2px; background: linear-gradient(to top, #F59E0B, #FCD34D); opacity: .85; } .pc-b.lo i { background: linear-gradient(to top, #10B981, #6EE7B7); } .pc-b.hi i { background: linear-gradient(to top, #F43F5E, #FDA4AF); } .pc-b.now i { opacity: 1; box-shadow: 0 0 0 2px var(--text); } .pc-b.sel i { opacity: 1; box-shadow: 0 0 0 2px var(--acc-text); } .pc-v { position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%) rotate(180deg); writing-mode: vertical-rl; font-size: .86rem; font-weight: 900; letter-spacing: .01em; color: #0B0F1E; text-shadow: none; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; } .pc-bars { height: 130px; } .pc-axis { display: flex; gap: 3px; } .pc-axis span { flex: 1 1 0; min-width: 0; font-size: .66rem; font-weight: 700; color: var(--faint); white-space: nowrap; overflow: visible; } .pc-stats { display: flex; flex-wrap: wrap; gap: 6px; } .pc-empty { width: 100%; text-align: center; color: var(--dim); font-size: .85rem; align-self: center; }",
     ":host([data-noart]) .hero-art, :host([data-noart]) #fx-hero, :host([data-noart]) .hero-tag { display: none !important; } :host([data-noart]) .hero { min-height: 0 !important; } :host([data-noart]) .hero-body { padding: 16px 20px 18px !important; }",
     ":host([data-btn=\"compact\"]) .o-name { line-height: 1.25; } :host([data-btn=\"compact\"]) .o-txt { justify-content: flex-end; min-height: calc(2.375rem + 1.1rem); }"
