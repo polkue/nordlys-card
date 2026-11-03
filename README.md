@@ -265,6 +265,24 @@ evAdvice:
 
 `washAdvice: true` viser samme slags chip for vaskemaskinen til højre, fx "Vask kl. 11–13 · ≈ 1,52 kr/kWh". Standard er 2 timer ved 800 W; ret med `washAdvice: { hours: 2, power: 800 }`.
 
+### Kamera-pop-up
+
+Viser et kamera live over dashboardet, når en sensor går fra `off` til `on`, fx Frigates personsensor:
+
+```yaml
+cameraPopup:
+  seconds: 30   # lukker, når sensoren har været off så længe (standard 30)
+  max: 300      # lukker senest efter så mange sekunder (standard 300)
+  triggers:
+    - entity: binary_sensor.indkorsel_person_occupancy
+      camera: camera.indkorsel
+      name: Indkørsel
+    - entity: binary_sensor.carport_person_occupancy
+      camera: camera.carport
+```
+
+Tryk på krydset eller ved siden af for at lukke. Tryk på billedet for at åbne kameraet. Uden nøglen sker der intet.
+
 ### Kiosk og topbjælke
 
 `kiosk: true` skjuler Home Assistants egen topbjælke og sidemenu, så kortet fylder hele skærmen. Nederst til højre på forsiden er der en knap, der slår kiosk fra og til igen. Valget huskes pr. enhed. `hide: [apparater]` fjerner sektionen Apparater på Energi. `hide: [topbjælke]` fjerner kortets egen topbjælke med Nordlys, status, Stil og tema på alle faner.
