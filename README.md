@@ -304,6 +304,7 @@ cameraTab:
   mode: mjpeg          # live (standard), mjpeg eller billede
   interval: 1          # kun til billede
   width: 720           # valgfri, kun til billede: Home Assistant skalerer billedet ned til denne bredde (mindre data til en svag skærm)
+  fill: true           # valgfri: med ét kamera fylder billedet skærmen helt ned til bundmenuen (godt til et lodret kamera)
   cameras:
     - camera.indkorsel
 ```
