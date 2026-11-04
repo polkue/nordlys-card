@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.67";
+window.NORDLYS_VERSION = "2.68";
 
 
 /* ---- disegno.js ---- */
@@ -1974,6 +1974,25 @@ window.NORDLYS_VERSION = "2.67";
       for (var j = 0; j < camTiles.length; j++) if (camTiles[j].liveEl) camTiles[j].liveEl.hass = h;
       for (var k2 = 0; k2 < CT.els.length; k2++) CT.els[k2].hass = h;
       cpopCheck();
+      ctTrigCheck();
+    }
+    /* Nordlys: cameraTab.trigger: sensor(er), der går fra off til on (fx binary_sensor.indkorsel_person_detected) = skift til fanen Kameraer.
+       cameraTab.wake: skærmens adresse (fx http://192.168.1.161) = tænd Shelly Wall Display-skærmen via Ui.Screen.Set.
+       cameraTab.seconds: gå tilbage til den forrige fane, når sensoren har været off så mange sek. (standard 60, 0 = bliv) */
+    var CTT = { prev: {}, back: null, timer: 0 };
+    function ctWake() {
+      var w = CFG.cameraTab && CFG.cameraTab.wake; if (!w) return;
+      var u = String(w).replace(/\/+$/, "") + '/rpc/Ui.Screen.Set?params=' + encodeURIComponent('{"on":true}');
+      try { fetch(u, { mode: "no-cors", cache: "no-store" }).catch(function () { try { var i = new Image(); i.src = u; } catch (e) {} }); } catch (e) { try { var i2 = new Image(); i2.src = u; } catch (e2) {} }
+    }
+    function ctTrigCheck() {
+      var c = CFG.cameraTab; if (!c || !c.trigger || !HASS || !VIEWS.cam) return;
+      var L = Array.isArray(c.trigger) ? c.trigger : [c.trigger], anyOn = false, fired = false;
+      L.forEach(function (id) { var s = HASS.states[id], st = s ? s.state : null, was = CTT.prev[id]; CTT.prev[id] = st; if (st === "on") anyOn = true; if (st === "on" && was === "off") fired = true; });
+      var curV = null; Object.keys(VIEWS).forEach(function (k) { var v = $(VIEWS[k]); if (v && !v.hidden) curV = k; });
+      if (fired) { clearTimeout(CTT.timer); ctWake(); if (curV !== "cam") { CTT.back = curV || "home"; show("cam"); } }
+      else if (!anyOn && CTT.back && !CTT.timer) { var sec = c.seconds === undefined ? 60 : +c.seconds; if (sec > 0) CTT.timer = setTimeout(function () { CTT.timer = 0; var b = CTT.back; CTT.back = null; var cv = $(VIEWS.cam); if (b && cv && !cv.hidden) show(b); }, sec * 1000); }
+      else if (anyOn && CTT.timer) { clearTimeout(CTT.timer); CTT.timer = 0; }
     }
 
     /* Nordlys: cameraPopup: { seconds, max, triggers: [{ entity, camera, name }] } = kameraet popper op over dashboardet,

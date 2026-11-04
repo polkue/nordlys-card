@@ -307,6 +307,9 @@ cameraTab:
   interval: 1          # kun til billede
   width: 720           # valgfri, kun til billede: Home Assistant skalerer billedet ned til denne bredde (mindre data til en svag skærm)
   fill: true           # valgfri: med ét kamera fylder billedet skærmen helt ned til bundmenuen (godt til et lodret kamera)
+  trigger: binary_sensor.indkorsel_person_detected   # valgfri: skift til Kameraer, når sensoren går fra off til on (også en liste)
+  wake: http://192.168.1.161   # valgfri: tænd skærmen på en Shelly Wall Display (Ui.Screen.Set) ved trigger
+  seconds: 60          # valgfri: gå tilbage til den forrige fane, når sensoren har været off så længe (0 = bliv)
   cameras:
     - camera.indkorsel
 ```
