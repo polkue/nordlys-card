@@ -283,6 +283,8 @@ cameraPopup:
 
 Tryk på krydset eller ved siden af for at lukke. Tryk på billedet for at åbne kameraet. Uden nøglen sker der intet.
 
+Kan skærmen ikke afspille live-strømmen, så brug `mode: mjpeg` eller `mode: billede` (med `interval` og `width`) ligesom i Kameraer-fanen. Det kan sættes for hele pop-up'en eller pr. trigger.
+
 ### Kameraer i egen fane
 
 `cameraTab` giver fanen Kameraer i bundmenuen (`dock: kameraer`) med alle kameraer live i et gitter, to i bredden og ét på mobil:
