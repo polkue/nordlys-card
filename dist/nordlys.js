@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.78";
+window.NORDLYS_VERSION = "2.79";
 
 
 /* ---- disegno.js ---- */
@@ -1567,7 +1567,7 @@ window.NORDLYS_VERSION = "2.78";
       var bottom = dk && !dk.hidden ? dk.getBoundingClientRect().top - 14 : sr.bottom - 16;
       f.style.height = Math.max(220, (bottom - fr.top) / z) + "px";
     }
-    function ctStop() { (CT.tm || []).forEach(function (x) { clearInterval(x); }); CT.tm = []; CT.els = []; var b = $("#camtab"); if (b && b.firstChild) b.innerHTML = ""; }
+    function ctStop() { (CT.tm || []).forEach(function (x) { if (x && x.stop) x.stop(); else clearInterval(x); }); CT.tm = []; CT.els = []; var b = $("#camtab"); if (b && b.firstChild) b.innerHTML = ""; }
     function ctEnter() {
       var box = $("#camtab"); if (!box) return; ctStop(); var list = ctList();
       box.dataset.n = list.length;
@@ -1585,7 +1585,19 @@ window.NORDLYS_VERSION = "2.78";
           var pic = function () { var s2 = HASS && HASS.states[c.entity]; return s2 && s2.attributes.entity_picture; };
           if (md === "mjpeg") { var p0 = pic(); if (p0) im.src = p0.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
           else { var iv = Math.max(0.15, +(c.interval || (CFG.cameraTab && CFG.cameraTab.interval) || 1)), busy = false;
-            var tick = function () { var p1 = pic(); if (!p1 || busy || !card.isConnected) return; busy = true; var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth) im.src = n.src; }; var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd); /* Home Assistant skalerer kun, når både width og height er sat */ n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) + "&" : "") + "_t=" + Date.now(); }; tick(); CT.tm.push(setInterval(tick, iv * 1000)); }
+            var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd), qs = wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) : "", fails = 0, pause = 0, lastUrl = null; /* Home Assistant skalerer kun, når både width og height er sat */
+            /* billedet hentes med appens login (hass.fetchWithAuth) i stedet for entity_picture-token, som udløber og giver "invalid authentication" + risiko for IP-ban. Ved fejl ventes der længere mellem forsøg */
+            var done = function (ok) { busy = false; if (ok) { fails = 0; pause = 0; } else { fails++; pause = Date.now() + Math.min(30000, 1000 * Math.pow(2, Math.min(fails, 5))); } };
+            var tick = function () { if (busy || !card.isConnected || Date.now() < pause) return; busy = true;
+              if (HASS && typeof HASS.fetchWithAuth === "function") {
+                HASS.fetchWithAuth("/api/camera_proxy/" + c.entity + (qs ? "?" + qs + "&" : "?") + "_t=" + Date.now(), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); }).then(function (b) {
+                  var u = URL.createObjectURL(b), n = new Image(); n.onload = function () { im.src = u; if (lastUrl) URL.revokeObjectURL(lastUrl); lastUrl = u; done(true); }; n.onerror = function () { URL.revokeObjectURL(u); done(false); }; n.src = u;
+                }).catch(function () { done(false); });
+                return;
+              }
+              var p1 = pic(); if (!p1) { busy = false; return; } var n2 = new Image(); n2.onload = function () { im.src = n2.src; done(true); }; n2.onerror = function () { done(false); }; n2.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (qs ? qs + "&" : "") + "_t=" + Date.now(); };
+            CT.tm.push({ stop: function () { if (lastUrl) URL.revokeObjectURL(lastUrl); } });
+            tick(); CT.tm.push(setInterval(tick, iv * 1000)); }
           return;
         }
         if (LIVE && window.loadCardHelpers) window.loadCardHelpers().then(function (h) {
