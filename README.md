@@ -229,6 +229,7 @@ Med `start` udelades målinger før en bestemt dato, fx en opsætningsdag. Tilf�
 ```yaml
 reportTab:
   start: "2026-10-26"   # valgfri
+  open: denne           # valgfri: åbner altid på den aktuelle måned, hver gang man går ind i fanen
 dock: [hus, energi, statistik, økonomi, rapport]
 ```
 

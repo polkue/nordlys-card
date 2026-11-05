@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.72";
+window.NORDLYS_VERSION = "2.73";
 
 
 /* ---- disegno.js ---- */
@@ -1419,7 +1419,9 @@ window.NORDLYS_VERSION = "2.72";
     function rapSigned(v, d) { return v === null || v === undefined ? "—" : (v >= 0 ? "+" : "−") + rapF(Math.abs(v), d); }
     function rapDm(d) { return d.getDate() + "/" + (d.getMonth() + 1); }
     function rapTile(lbl, val, unit, cls, note, sw) { return '<article class="card rap-tile"><span class="rap-lbl">' + (sw ? '<i class="rap-sw ' + sw + '"></i>' : "") + lbl + '</span><span class="rap-val' + (cls ? " " + cls : "") + '">' + val + (unit ? "<small>" + unit + "</small>" : "") + "</span>" + (note ? '<span class="rap-note">' + note + "</span>" : "") + "</article>"; }
-    function rapEnter() { if (!RAP.m) { var n = new Date(); RAP.m = new Date(n.getFullYear(), n.getMonth() - 1, 1); } rapLoad(); }
+    /* Nordlys: reportTab.open: "denne" = fanen åbner altid på den aktuelle måned, hver gang man går ind i den */
+    function rapEnter() { var n = new Date(), op = CFG.reportTab && typeof CFG.reportTab === "object" ? String(CFG.reportTab.open || "").toLowerCase() : "", cur = op === "denne" || op === "aktuel" || op === "current";
+      if (cur) { RAP.m = new Date(n.getFullYear(), n.getMonth(), 1); RAP.sel = null; } else if (!RAP.m) RAP.m = new Date(n.getFullYear(), n.getMonth() - 1, 1); rapLoad(); }
     function rapLoad() {
       var box = $("#view-rap"); if (!box) return; var m = RAP.m, pm = new Date(m.getFullYear(), m.getMonth() - 1, 1);
       if (!box.children.length) box.innerHTML = '<article class="card rap-msg">Henter statistik …</article>';
