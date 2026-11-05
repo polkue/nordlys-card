@@ -39,6 +39,7 @@ Flere Claude-samtaler kan arbejde på dette repo samtidig. Følg reglerne her, s
 - **Vent 5 minutter:** HACS henter filerne fra GitHubs raw-server, som cacher i op til 5 minutter. Vent mindst 5 minutter efter et push, før du kører HACS `update_information` og `download`. Ellers får installationen den forrige version.
 - **Tjek versionen:** Bekræft bagefter, at `installed_version` i HACS er den commit, du skubbede op.
 - **Ryd cachen:** Brugeren skal rydde frontend-cachen i appen. Indstillinger → Companion app → Fejlfinding → Nulstil frontend-cache, og luk derefter appen helt.
+- **Genstart vægskærmene:** Når HACS har hentet den nye version, så genstart Shelly-vægskærmen i begge huse (Shelly-integrationens `button.*_genstart`). Vent ca. 1½ minut, og start så Home Assistant-appen på skærmen med `notify.mobile_app_<skærm>`, besked `command_launch_app`, `package_name: io.homeassistant.companion.android`. Find entiteterne i den enkelte installation; skriv dem ikke ind her.
 
 ## 7. Test, før du skubber op
 
