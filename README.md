@@ -285,7 +285,7 @@ cameraPopup:
 
 Tryk på krydset eller ved siden af for at lukke. Tryk på billedet for at åbne kameraet. Uden nøglen sker der intet.
 
-Kan skærmen ikke afspille live-strømmen, så brug `mode: mjpeg` eller `mode: billede` (med `interval` og `width`) ligesom i Kameraer-fanen. Det kan sættes for hele pop-up'en eller pr. trigger.
+Kan skærmen ikke afspille live-strømmen, så brug `mode: mjpeg` eller `mode: billede` (med `interval` ned til 0.15 sek. og `width`) ligesom i Kameraer-fanen. Det kan sættes for hele pop-up'en eller pr. trigger.
 
 ### Kameraer i egen fane
 
