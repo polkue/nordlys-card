@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.76";
+window.NORDLYS_VERSION = "2.77";
 
 
 /* ---- disegno.js ---- */
@@ -2039,9 +2039,9 @@ window.NORDLYS_VERSION = "2.76";
       $(".cpop-feed", box).addEventListener("click", function () { var id = t.camera; cpopClose(); moreInfo(id); });
       var feed = $(".cpop-feed", box), im = $("img", box);
       /* Nordlys: cameraPopup.mode: mjpeg eller billede (med interval og width) som i cameraTab - til skærme, der ikke kan afspille live-strømmen */
-      var md = String(t.mode || c.mode || "live").toLowerCase(), wd = +(t.width || c.width || 0), busy = false;
+      var md = String(t.mode || c.mode || "live").toLowerCase(), wd = +(t.width || c.width || 0), hd = +(t.height || c.height || wd), busy = false; /* Home Assistant skalerer kun, når både width og height er sat */
       function still() { var s2 = HASS.states[t.camera], p = s2 && s2.attributes.entity_picture; if (!p || busy) return; busy = true;
-        var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth && CPOP.box === box) im.src = n.src; }; n.src = p + (p.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&" : "") + "_t=" + Date.now(); }
+        var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth && CPOP.box === box) im.src = n.src; }; n.src = p + (p.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) + "&" : "") + "_t=" + Date.now(); }
       if (md === "mjpeg") { var pm = HASS.states[t.camera] && HASS.states[t.camera].attributes.entity_picture; if (pm) im.src = pm.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
       else { still(); CPOP.img = setInterval(still, Math.max(0.15, +(t.interval || c.interval || 1)) * 1000); }
       if (md === "live" && window.loadCardHelpers) window.loadCardHelpers().then(function (h) {
