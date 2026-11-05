@@ -77,6 +77,7 @@ entities:
     flowSelf: true                          # valgfri: egetforbrug af solstrømmen i % øverst til venstre i energifordelingen
     flowSufficiency: true                   # valgfri: selvforsyningsgrad i % (solstrøm brugt i huset / husets forbrug) under egetforbrug
     flowBalance: true                       # valgfri: energibalance (køb og salg i dag) under målerne; målerne rykkes op
+    flowEv: true                            # valgfri: lille cirkel for elbilladeren ved Hjem; kWh ladet i dag (evToday), effekt mens bilen lader (ev, over evMin)
     flowPrices: true                        # valgfri: elpris nu og salgspris øverst til højre i energifordelingen; prisbjælken skjules
     kpiWeek: true                           # valgfri: felterne på Energi viser i dag, i går, denne uge, sidste uge og denne måned med kWh, kr., solceller, solgt, resultat, egetforbrug og selvforsyning i % (kræver gridExport til %; med kpiTab står de i stedet for de tomme felter)
     kpiGrid: true                           # valgfri: i stedet for I dag … I år vises de sidste 7 dage, 7 uger og 12 måneder (2 rækker à 6) med kWh, kr., elbil, solceller, solgt og resultat; elbilens kr. kommer fra evCost (og timens kWh × timens pris før tælleren fandtes), ellers et skøn; på mobil kan rækkerne swipes
