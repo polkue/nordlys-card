@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.79";
+window.NORDLYS_VERSION = "2.80";
 
 
 /* ---- disegno.js ---- */
@@ -1567,6 +1567,17 @@ window.NORDLYS_VERSION = "2.79";
       var bottom = dk && !dk.hidden ? dk.getBoundingClientRect().top - 14 : sr.bottom - 16;
       f.style.height = Math.max(220, (bottom - fr.top) / z) + "px";
     }
+    /* Nordlys: cameraTab.fill: true med flere kameraer = alle kameraer skaleres, så hele gitteret står over bundmenuen uden at scrolle (16:9 bevares, gitteret centreres) */
+    function ctFitGrid() {
+      var box = $("#camtab[data-fitgrid]"); if (!box || !box.isConnected || SCROLL === window) return;
+      var tiles = $$(".ct-tile", box); if (!tiles.length) return;
+      box.style.gridTemplateColumns = ""; var cols = (getComputedStyle(box).gridTemplateColumns || "").split(" ").filter(Boolean).length || 1; if (cols < 2) { box.style.justifyContent = ""; return; } /* på mobil (én kolonne) scrolles der som normalt */
+      var dk = $(".dock"), sr = SCROLL.getBoundingClientRect(), br = box.getBoundingClientRect(), z = (sr.height / (SCROLL.offsetHeight || 1)) || 1;
+      var bottom = dk && !dk.hidden ? dk.getBoundingClientRect().top - 14 : sr.bottom - 16;
+      var rows = Math.ceil(tiles.length / cols), head = $(".ct-head", tiles[0]).offsetHeight || 0, gap = parseFloat(getComputedStyle(box).rowGap) || 14;
+      var fh = ((bottom - br.top) / z - (rows - 1) * gap - rows * head) / rows, w = Math.max(160, Math.floor(fh * 16 / 9)), maxW = (box.clientWidth - (cols - 1) * gap) / cols;
+      if (w < maxW) { box.style.gridTemplateColumns = "repeat(" + cols + ", " + w + "px)"; box.style.justifyContent = "center"; } else { box.style.gridTemplateColumns = ""; box.style.justifyContent = ""; }
+    }
     function ctStop() { (CT.tm || []).forEach(function (x) { if (x && x.stop) x.stop(); else clearInterval(x); }); CT.tm = []; CT.els = []; var b = $("#camtab"); if (b && b.firstChild) b.innerHTML = ""; }
     function ctEnter() {
       var box = $("#camtab"); if (!box) return; ctStop(); var list = ctList();
@@ -1608,6 +1619,7 @@ window.NORDLYS_VERSION = "2.79";
       if (!list.length) box.innerHTML = '<article class="card hh-msg">Ingen kameraer sat op.</article>';
       /* Nordlys: cameraTab.fill: true = ét kamera fylder skærmen helt ned til bundmenuen */
       if (CFG.cameraTab && CFG.cameraTab.fill && list.length === 1) { box.setAttribute("data-fill", ""); ctFit(); setTimeout(ctFit, 300); if (!CT.rs) { CT.rs = true; window.addEventListener("resize", function () { ctFit(); }); } }
+      if (CFG.cameraTab && CFG.cameraTab.fill && list.length > 1) { box.setAttribute("data-fitgrid", ""); requestAnimationFrame(ctFitGrid); setTimeout(ctFitGrid, 300); if (!CT.rg) { CT.rg = true; window.addEventListener("resize", function () { ctFitGrid(); }); } }
     }
     if (ctList().length) { VIEWS.cam = "#view-cam";
       var cdk = Array.isArray(CFG.dock) ? CFG.dock.map(function (x) { return String(x).toLowerCase(); }) : null, cbt = $('.dock [data-view="cam"]');
