@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.75";
+window.NORDLYS_VERSION = "2.76";
 
 
 /* ---- disegno.js ---- */
@@ -1584,7 +1584,7 @@ window.NORDLYS_VERSION = "2.75";
           var pic = function () { var s2 = HASS && HASS.states[c.entity]; return s2 && s2.attributes.entity_picture; };
           if (md === "mjpeg") { var p0 = pic(); if (p0) im.src = p0.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
           else { var iv = Math.max(0.15, +(c.interval || (CFG.cameraTab && CFG.cameraTab.interval) || 1)), busy = false;
-            CT.tm.push(setInterval(function () { var p1 = pic(); if (!p1 || busy || !card.isConnected) return; busy = true; var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth) im.src = n.src; }; var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0); n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&" : "") + "_t=" + Date.now(); }, iv * 1000)); }
+            CT.tm.push(setInterval(function () { var p1 = pic(); if (!p1 || busy || !card.isConnected) return; busy = true; var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth) im.src = n.src; }; var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd); /* Home Assistant skalerer kun, når både width og height er sat */ n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) + "&" : "") + "_t=" + Date.now(); }, iv * 1000)); }
           return;
         }
         if (LIVE && window.loadCardHelpers) window.loadCardHelpers().then(function (h) {
