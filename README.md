@@ -305,7 +305,7 @@ Kan skærmen ikke afspille live-strømmen (fx Shelly Wall Display med Android 8)
 ```yaml
 cameraTab:
   mode: mjpeg          # live (standard), mjpeg eller billede
-  interval: 1          # kun til billede
+  interval: 1          # kun til billede: sekunder mellem billeder (ned til 0.15). Et nyt billede hentes først, når det forrige er kommet, så skærmen aldrig får flere i kø
   width: 720           # valgfri, kun til billede: Home Assistant skalerer billedet ned til denne bredde (mindre data til en svag skærm)
   fill: true           # valgfri: med ét kamera fylder billedet skærmen helt ned til bundmenuen (godt til et lodret kamera)
   trigger: binary_sensor.indkorsel_person_detected   # valgfri: skift til Kameraer, når sensoren går fra off til on (også en liste)

@@ -1583,7 +1583,7 @@ window.NORDLYS_VERSION = "2.73";
         if (LIVE && (md === "mjpeg" || md === "billede" || md === "snapshot")) {
           var pic = function () { var s2 = HASS && HASS.states[c.entity]; return s2 && s2.attributes.entity_picture; };
           if (md === "mjpeg") { var p0 = pic(); if (p0) im.src = p0.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
-          else { var iv = Math.max(0.5, +(c.interval || (CFG.cameraTab && CFG.cameraTab.interval) || 1)), busy = false;
+          else { var iv = Math.max(0.15, +(c.interval || (CFG.cameraTab && CFG.cameraTab.interval) || 1)), busy = false;
             CT.tm.push(setInterval(function () { var p1 = pic(); if (!p1 || busy || !card.isConnected) return; busy = true; var n = new Image(); n.onload = n.onerror = function () { busy = false; if (n.naturalWidth) im.src = n.src; }; var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0); n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&" : "") + "_t=" + Date.now(); }, iv * 1000)); }
           return;
         }
