@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.82";
+window.NORDLYS_VERSION = "2.83";
 
 
 /* ---- disegno.js ---- */
@@ -1590,7 +1590,9 @@ window.NORDLYS_VERSION = "2.82";
         feed.addEventListener("click", function () { moreInfo(c.entity); });
         /* Nordlys: mode: mjpeg (MJPEG-strøm i et billede) eller billede (stillbillede hvert interval sek.) - til ældre skærme som Shelly Wall Display, der ikke kan afspille live-strømmen. Kan sættes for hele fanen eller pr. kamera */
         var md = String(c.mode || (CFG.cameraTab && CFG.cameraTab.mode) || "live").toLowerCase();
-        if (s && s.attributes.entity_picture) im.src = s.attributes.entity_picture;
+        /* første billede hentes straks; i billede-tilstand med width i den skalerede størrelse, så det ikke er et fuldt kamerabillede på flere MB */
+        var wd0 = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd0 = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd0), ep0 = s && s.attributes.entity_picture;
+        if (ep0) im.src = (LIVE && (md === "billede" || md === "snapshot") && wd0 > 0) ? ep0 + (ep0.indexOf("?") > -1 ? "&" : "?") + "width=" + Math.round(wd0) + "&height=" + Math.round(hd0) : ep0;
         if (LIVE && (md === "mjpeg" || md === "billede" || md === "snapshot")) {
           var pic = function () { var s2 = HASS && HASS.states[c.entity]; return s2 && s2.attributes.entity_picture; };
           if (md === "mjpeg") { var p0 = pic(); if (p0) im.src = p0.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
