@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.87";
+window.NORDLYS_VERSION = "2.88";
 
 
 /* ---- disegno.js ---- */
@@ -1604,7 +1604,7 @@ window.NORDLYS_VERSION = "2.87";
             var since = 0, cur = null; /* vagthund: hænger en hentning (intet onload/onerror), frigives den efter 6 sek., så billedet ikke fryser */
             var tick = function () { var p1 = pic(); if (!p1 || !card.isConnected) return; if (busy && Date.now() - since < 6000) return; busy = true; since = Date.now(); var n = new Image();
               var fin = function (ok) { if (n !== cur) return; busy = false; if (ok && n.naturalWidth) show(n); };
-              n.onload = function () { if (n.decode) n.decode().then(function () { fin(true); }, function () { fin(true); }); else fin(true); }; n.onerror = function () { fin(false); }; cur = n;
+              n.onload = function () { fin(true); }; /* uden decode(): på Shelly-skærmens WebView kan decode() blive hængende, så billedet aldrig vises */ n.onerror = function () { fin(false); }; cur = n;
               var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd); /* Home Assistant skalerer kun, når både width og height er sat */
               n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) + "&" : "") + "_t=" + Date.now(); };
             tick(); CT.tm.push(setInterval(tick, iv * 1000)); }
