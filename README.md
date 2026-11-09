@@ -56,6 +56,8 @@ entities:
     hpName: Varmepumpe                    # valgfri: navn på måler, chip og linje (standard Varmepumpe)
     hpPeak: 3000                          # valgfri: fuldt udslag på måleren i W (standard 3000)
     kpiHp: true                           # valgfri: varmepumpens kWh, andel og kr. (timens kWh × timens pris) i felterne I dag … I år
+    chartHp: true                         # valgfri: varmepumpens effekt (hpPower) som orange kurve i Udvikling + "top"-chip
+    dayHp: true                           # valgfri: varmepumpens kWh (og kr.) som egen orange søjle i "Forbrug pr. dag"; kan også vælges med daySeries: [..., varmepumpe]
     energyTotal: sensor.energi_total
     price: input_number.elpris              # fast pris (kan rettes i kortet) — eller en sensor med live timepris, fx sensor.elpris fra Energi Data Service
     costTotal: sensor.elomkostning_total    # valgfri: samlet kr-tæller (kr); giver rigtige kr. pr. dag/måned/år ud fra timepriser
