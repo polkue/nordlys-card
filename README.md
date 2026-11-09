@@ -318,6 +318,27 @@ cameraTab:
     - camera.indkorsel
 ```
 
+### Frigate-hændelser i egen fane
+
+`eventsTab` giver fanen Hændelser i bundmenuen (`dock: hændelser`) med de seneste hændelser fra Frigate, én række pr. type (fx personer og biler) med miniaturebilleder, kamera og hvor længe siden. Tryk på et billede viser snapshot i stor størrelse. Kræver Frigate-integrationen (HACS). Hændelser i gang har en farvet kant.
+
+```yaml
+eventsTab: true        # personer og biler, 12 af hver
+```
+
+```yaml
+eventsTab:
+  instance: frigate    # valgfri: Frigates client_id (standard frigate)
+  labels: [person, car, dog]   # valgfri: hvilke typer og i hvilken rækkefølge
+  names:               # valgfri: egne overskrifter
+    car: Biler i indkørslen
+  cameras: [indkorsel, indkorsel_mod_hus]   # valgfri: kun disse Frigate-kameraer
+  limit: 12            # valgfri: antal pr. række (højst 50)
+  refresh: 60          # valgfri: sekunder mellem opdateringer, mens fanen er åben (mindst 15)
+```
+
+Listen hentes, når fanen åbnes, og opdateres kun, mens den er åben.
+
 ### Indetemperatur ved uret
 
 `heroTemp` viser en temperatur i samme store stil ved siden af uret, med rummets navn under. Det kan være én sensor eller en liste.
