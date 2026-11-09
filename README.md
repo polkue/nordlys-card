@@ -51,6 +51,11 @@ entities:
     chartFit: true                        # valgfri: Udvikling zoomer ind, så kurverne fylder hele højden
     evCost: sensor.elbil_omkostning_total # valgfri: kr-tæller for ladning (ladeeffekt × timepris, integreret) — giver elbilens kr. i felterne og pr. dag. Timer før tælleren fandtes regnes som timens kWh × timens pris (kræver at price er en sensor)
     dayEv: true                           # valgfri: elbilens kWh (og kr.) som egen lilla søjle i "Forbrug pr. dag"; kan også vælges med daySeries: [..., elbil]
+    hpPower: sensor.varmepumpe_effekt     # valgfri: varmepumpens effekt (W/kW) som egen orange måler i toppen + chip med kWh i dag
+    hpEnergy: sensor.varmepumpe_energi    # valgfri: varmepumpens kWh-tæller
+    hpName: Varmepumpe                    # valgfri: navn på måler, chip og linje (standard Varmepumpe)
+    hpPeak: 3000                          # valgfri: fuldt udslag på måleren i W (standard 3000)
+    kpiHp: true                           # valgfri: varmepumpens kWh, andel og kr. (timens kWh × timens pris) i felterne I dag … I år
     energyTotal: sensor.energi_total
     price: input_number.elpris              # fast pris (kan rettes i kortet) — eller en sensor med live timepris, fx sensor.elpris fra Energi Data Service
     costTotal: sensor.elomkostning_total    # valgfri: samlet kr-tæller (kr); giver rigtige kr. pr. dag/måned/år ud fra timepriser
