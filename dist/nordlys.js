@@ -4,7 +4,7 @@
    ny konfiguration "labels" til egne navne på lys, rum og scener. Kommentarer i koden er fortsat på italiensk.
    Udgives under GPL-3.0 (se LICENSE). */
 /* VERSION: ret kun her (se CLAUDE.md) */
-window.NORDLYS_VERSION = "2.85";
+window.NORDLYS_VERSION = "2.86";
 
 
 /* ---- disegno.js ---- */
@@ -1559,6 +1559,7 @@ window.NORDLYS_VERSION = "2.85";
       if (rbt && (!rdk || rdk.indexOf("rapport") > -1 || rdk.indexOf("rap") > -1)) rbt.hidden = false; }
     /* Nordlys: cameraTab: { cameras: ["camera.x", { entity, name }] } giver fanen Kameraer (dock: kameraer) med alle kameraer live.
        Strømmene startes, når fanen åbnes, og stoppes, når man går til en anden fane. */
+    var CTLAST = window.__nordlysCamLast = window.__nordlysCamLast || {}; /* sidste færdige kamerabillede pr. kamera (billede-tilstand) */
     var CT = { els: [], tm: [] };
     function ctList() { var c = CFG.cameraTab; var l = Array.isArray(c) ? c : c && Array.isArray(c.cameras) ? c.cameras : []; return l.map(function (x) { return typeof x === "string" ? { entity: x } : x; }).filter(function (x) { return x && x.entity; }); }
     function ctFit() {
@@ -1590,16 +1591,23 @@ window.NORDLYS_VERSION = "2.85";
         feed.addEventListener("click", function () { moreInfo(c.entity); });
         /* Nordlys: mode: mjpeg (MJPEG-strøm i et billede) eller billede (stillbillede hvert interval sek.) - til ældre skærme som Shelly Wall Display, der ikke kan afspille live-strømmen. Kan sættes for hele fanen eller pr. kamera */
         var md = String(c.mode || (CFG.cameraTab && CFG.cameraTab.mode) || "live").toLowerCase();
-        /* første billede hentes straks; i billede-tilstand med width i den skalerede størrelse, så det ikke er et fuldt kamerabillede på flere MB */
-        var wd0 = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd0 = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd0), ep0 = s && s.attributes.entity_picture;
-        if (ep0) im.src = (LIVE && (md === "billede" || md === "snapshot") && wd0 > 0) ? ep0 + (ep0.indexOf("?") > -1 ? "&" : "?") + "width=" + Math.round(wd0) + "&height=" + Math.round(hd0) : ep0;
-        if (LIVE && (md === "mjpeg" || md === "billede" || md === "snapshot")) {
+        var snapMd = LIVE && (md === "billede" || md === "snapshot");
+        if (s && s.attributes.entity_picture && !snapMd) im.src = s.attributes.entity_picture;
+        if (LIVE && (md === "mjpeg" || snapMd)) {
           var pic = function () { var s2 = HASS && HASS.states[c.entity]; return s2 && s2.attributes.entity_picture; };
           if (md === "mjpeg") { var p0 = pic(); if (p0) im.src = p0.replace("/api/camera_proxy/", "/api/camera_proxy_stream/"); }
           else { var iv = Math.max(0.15, +(c.interval || (CFG.cameraTab && CFG.cameraTab.interval) || 1)), busy = false;
-            /* samme enkle metode som før 2.78: billedet hentes via entity_picture (HA fornyer selv token i state), første billede vises straks */
+            /* billede-tilstand: hvert billede hentes færdigt i baggrunden (entity_picture, HA fornyer selv token) og sættes først ind, når det er helt hentet og afkodet,
+               så skærmen aldrig tegner et halvt billede linje for linje. Sidste billede gemmes, så fanen åbner med det med det samme, mens et nyt hentes */
+            var show = function (n) { if (!card.isConnected) return; n.alt = ""; n.draggable = false; if (im !== n) { im.replaceWith(n); im = n; } CTLAST[c.entity] = n; };
+            if (CTLAST[c.entity]) show(CTLAST[c.entity]);
             var since = 0, cur = null; /* vagthund: hænger en hentning (intet onload/onerror), frigives den efter 6 sek., så billedet ikke fryser */
-            CT.tm.push(setInterval(function () { var p1 = pic(); if (!p1 || !card.isConnected) return; if (busy && Date.now() - since < 6000) return; busy = true; since = Date.now(); var n = new Image(); n.onload = n.onerror = function () { if (n !== cur) return; busy = false; if (n.naturalWidth) im.src = n.src; }; cur = n; var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd); /* Home Assistant skalerer kun, når både width og height er sat */ n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) + "&" : "") + "_t=" + Date.now(); }, iv * 1000)); }
+            var tick = function () { var p1 = pic(); if (!p1 || !card.isConnected) return; if (busy && Date.now() - since < 6000) return; busy = true; since = Date.now(); var n = new Image();
+              var fin = function (ok) { if (n !== cur) return; busy = false; if (ok && n.naturalWidth) show(n); };
+              n.onload = function () { if (n.decode) n.decode().then(function () { fin(true); }, function () { fin(true); }); else fin(true); }; n.onerror = function () { fin(false); }; cur = n;
+              var wd = +(c.width || (CFG.cameraTab && CFG.cameraTab.width) || 0), hd = +(c.height || (CFG.cameraTab && CFG.cameraTab.height) || wd); /* Home Assistant skalerer kun, når både width og height er sat */
+              n.src = p1 + (p1.indexOf("?") > -1 ? "&" : "?") + (wd > 0 ? "width=" + Math.round(wd) + "&height=" + Math.round(hd) + "&" : "") + "_t=" + Date.now(); };
+            tick(); CT.tm.push(setInterval(tick, iv * 1000)); }
           return;
         }
         if (LIVE && window.loadCardHelpers) window.loadCardHelpers().then(function (h) {
